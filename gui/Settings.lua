@@ -1049,7 +1049,6 @@ function CreateTab_Customize()
     -- Show/hide function for category sections
     function ShowCategorySection(categoryName)
         if categoryName then
-            print("Showing category section: " .. categoryName)
             currentCategory = categoryName
             -- Update dropdown text to match selected category
             if categoryDropdown then
@@ -1069,7 +1068,6 @@ function CreateTab_Customize()
         fontsSection:Hide()
 
         if currentCategory == "Dimensions" then
-            print("Displaying Dimensions section")
             dimensionsSection:Show()
             if UpdateDimensionSliders then UpdateDimensionSliders() end
         elseif currentCategory == "Colors" then
@@ -1091,7 +1089,6 @@ function CreateTab_Customize()
 
           -- Update scroll area to fit the new content
           if categoryContainer then
-            print("Updating scroll child rect for category: " .. currentCategory)
               categoryContainer:UpdateScrollChildRect()
 
           end
