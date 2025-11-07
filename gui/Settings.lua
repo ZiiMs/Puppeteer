@@ -1049,6 +1049,7 @@ function CreateTab_Customize()
     -- Show/hide function for category sections
     function ShowCategorySection(categoryName)
         if categoryName then
+            print("Showing category section: " .. categoryName)
             currentCategory = categoryName
             -- Update dropdown text to match selected category
             if categoryDropdown then
@@ -1068,6 +1069,7 @@ function CreateTab_Customize()
         fontsSection:Hide()
 
         if currentCategory == "Dimensions" then
+            print("Displaying Dimensions section")
             dimensionsSection:Show()
             if UpdateDimensionSliders then UpdateDimensionSliders() end
         elseif currentCategory == "Colors" then
@@ -1083,14 +1085,15 @@ function CreateTab_Customize()
             layoutsSection:Show()
             if UpdateLayoutsSection then UpdateLayoutsSection() end
          elseif currentCategory == "Fonts" then
-             fontsSection:Hide() -- Force a redraw
              fontsSection:Show()
              if UpdateFontsSection then UpdateFontsSection() end
          end
 
           -- Update scroll area to fit the new content
           if categoryContainer then
+            print("Updating scroll child rect for category: " .. currentCategory)
               categoryContainer:UpdateScrollChildRect()
+
           end
           if categoryDropdown then
               categoryDropdown:UpdateText()
@@ -1110,6 +1113,7 @@ function CreateTab_Customize()
             addOption("text", "Fonts", "dropdownText", "Fonts", "func", args.func)
         end, {
             func = function(self, gui)
+                print("Category selected: " .. self.text)
                 ShowCategorySection(self.text)
             end
         })
@@ -2289,7 +2293,7 @@ function SetStyleOverride(style, location, value)
     categoryContainer:UpdateScrollChildRect()
 
     -- Show default category
-    ShowCategorySection("Dimensions")
+    -- ShowCategorySection("Dimensions") -- Removed this line
 end
 
 -- Profile management buttons
