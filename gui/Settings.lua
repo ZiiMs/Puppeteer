@@ -52,7 +52,7 @@ function RefreshFrameGroup(frameName)
     -- Size and update all elements for the newly created frames
     for _, ui in pairs(group.uis) do
         ui:SizeElements()
-        ui:UpdateAll()  -- Populate health/power/name text with current data
+        ui:UpdateAll() -- Populate health/power/name text with current data
     end
 
     Puppeteer.CheckGroup()
@@ -157,7 +157,7 @@ function PopOverlayFrame()
 end
 
 EditedBindings = {}
-BindingsContext = {Target = "Friendly", Modifier = "None"}
+BindingsContext = { Target = "Friendly", Modifier = "None" }
 function CreateTab_Bindings()
     local container = TabFrame:CreateTab("Bindings")
 
@@ -166,7 +166,7 @@ function CreateTab_Bindings()
         :SetPoint("TOPRIGHT", container, "TOPRIGHT", -20, -10)
     local function UpdateProfileLabel()
         local profileName = PTProfileData.GetCurrentCharacterProfile()
-        profileLabel:SetText(colorize("Profile: "..profileName, 0.7, 0.7, 0.7))
+        profileLabel:SetText(colorize("Profile: " .. profileName, 0.7, 0.7, 0.7))
     end
     UpdateProfileLabel()
 
@@ -282,7 +282,7 @@ function CreateTab_Bindings()
             local dialog = PTGuiLib.Get("simple_dialog", TabFrame)
                 :SetPoint("CENTER", TabFrame, "CENTER", 0, 40)
             dialog:SetTitle("Confirm Delete")
-            dialog:SetText("Are you sure you want to delete binding loadout '"..currentLoadoutName.."'?")
+            dialog:SetText("Are you sure you want to delete binding loadout '" .. currentLoadoutName .. "'?")
             dialog:AddButton("Yes, delete loadout", function()
                 dialog:Dispose()
                 PopOverlayFrame()
@@ -312,7 +312,7 @@ function CreateTab_Bindings()
                 end
             end
         end, {
-            options = {"Friendly", "Hostile"},
+            options = { "Friendly", "Hostile" },
             initFunc = function(self, gui)
                 self.checked = self.text == gui:GetText()
             end,
@@ -341,7 +341,7 @@ function CreateTab_Bindings()
 
     local keyLabel = CreateLabel(container, "Key Modifier")
         :SetPoint("TOPLEFT", container, "TOPLEFT", 95, -125)
-    
+
     local keyDropdown = CreateDropdown(container, 150)
         :SetPoint("LEFT", keyLabel, "RIGHT", 5, 0)
         :SetSimpleOptions(util.GetKeyModifiers(), function(modifier)
@@ -365,7 +365,7 @@ function CreateTab_Bindings()
     SpellBindInterface = interface
 
     LoadBindings()
-    
+
 
     local addButton = PTGuiLib.Get("button", container)
         :SetPoint("BOTTOM", container, "BOTTOM", 0, 20)
@@ -416,7 +416,6 @@ end
 
 function SetModifierContext(modifier)
     BindingsContext.Modifier = modifier
-
 end
 
 function SetBindingsContext(friendlyOrHostile, modifier)
@@ -480,7 +479,7 @@ function CreateTab_Options()
         :SetPoint("TOPRIGHT", container, "TOPRIGHT", -20, -10)
     local function UpdateProfileLabel()
         local profileName = PTProfileData.GetCurrentCharacterProfile()
-        profileLabel:SetText(colorize("Profile: "..profileName, 0.7, 0.7, 0.7))
+        profileLabel:SetText(colorize("Profile: " .. profileName, 0.7, 0.7, 0.7))
     end
     UpdateProfileLabel()
 
@@ -499,48 +498,54 @@ end
 
 function CreateTab_Options_Casting(panel)
     local container = panel:CreateTab("Casting")
-    local layout = NewLabeledColumnLayout(container, {150, 310}, -20, 10)
+    local layout = NewLabeledColumnLayout(container, { 150, 310 }, -20, 10)
     local factory = NewComponentFactory(container, layout)
     container.factory = factory
 
-    factory:dropdown("Cast When (Mouse)", "What mouse button state to start casting spells at", "CastWhen", {"Mouse Up", "Mouse Down"}, function()
-        for _, ui in ipairs(Puppeteer.AllUnitFrames) do
-            ui:RegisterClicks()
-        end
-    end)
-    factory:dropdown("Cast When (Keys)", "What key state to start casting spells at", "CastWhenKey", {"Key Up", "Key Down"})
+    factory:dropdown("Cast When (Mouse)", "What mouse button state to start casting spells at", "CastWhen",
+        { "Mouse Up", "Mouse Down" }, function()
+            for _, ui in ipairs(Puppeteer.AllUnitFrames) do
+                ui:RegisterClicks()
+            end
+        end)
+    factory:dropdown("Cast When (Keys)", "What key state to start casting spells at", "CastWhenKey",
+        { "Key Up", "Key Down" })
     local resSpell = Puppeteer.ResurrectionSpells[util.GetClass("player")]
-    local autoResInfo = not resSpell and "This does nothing for your class" or {"Replaces your bound spells with "..resSpell..
-        " when clicking on a dead ally", "All other types of binds, such as Actions, will not be replaced"}
+    local autoResInfo = not resSpell and "This does nothing for your class" or
+        { "Replaces your bound spells with " .. resSpell ..
+        " when clicking on a dead ally", "All other types of binds, such as Actions, will not be replaced" }
     factory:checkbox("Auto Resurrect", autoResInfo, "AutoResurrect")
-    factory:checkbox("PVP Flag Protection", {"Stops you from casting spells on PVP flagged players if you're not flagged",
-        "Attempting to cast will prompt you to make an exception",
-        "Only stops you from using Spell bindings"}, "PVPFlagProtection")
-    factory:checkbox("Target While Casting", {"Target the unit while most bindings run",
+    factory:checkbox("PVP Flag Protection",
+        { "Stops you from casting spells on PVP flagged players if you're not flagged",
+            "Attempting to cast will prompt you to make an exception",
+            "Only stops you from using Spell bindings" }, "PVPFlagProtection")
+    factory:checkbox("Target While Casting", { "Target the unit while most bindings run",
         "Note that these binding types override this rule:",
         "Spell - Always targets unless using SuperWoW",
         "Action - Never targets unless specified by action",
         "Item - Always targets",
-        "Multi - Never targets"}, "TargetWhileCasting")
-    factory:checkbox("Target After Casting", {"Target the unit after most bindings run",
+        "Multi - Never targets" }, "TargetWhileCasting")
+    factory:checkbox("Target After Casting", { "Target the unit after most bindings run",
         "Note that these binding types override this rule:",
-        "Multi - Never targets"}, "TargetAfterCasting")
+        "Multi - Never targets" }, "TargetAfterCasting")
 end
 
 function CreateTab_Options_SpellsTooltip(panel)
     local container = panel:CreateTab("Spells Tooltip")
-    local layout = NewLabeledColumnLayout(container, {150, 310}, -20, 10)
+    local layout = NewLabeledColumnLayout(container, { 150, 310 }, -20, 10)
     local factory = NewComponentFactory(container, layout)
     container.factory = factory
-    factory:checkbox("Enable Spells Tooltip", {"Show the spells tooltip when hovering over unit frames"}, "SpellsTooltip.Enabled")
-    factory:checkbox("Show % Mana Cost", {"Show the percent mana cost in the spells tooltip", 
-        "Does nothing for non-mana users"}, "SpellsTooltip.ShowManaPercentCost")
+    factory:checkbox("Enable Spells Tooltip", { "Show the spells tooltip when hovering over unit frames" },
+        "SpellsTooltip.Enabled")
+    factory:checkbox("Show % Mana Cost", { "Show the percent mana cost in the spells tooltip",
+        "Does nothing for non-mana users" }, "SpellsTooltip.ShowManaPercentCost")
     layout:column(2):levelAt(1)
-    factory:checkbox("Show # Mana Cost", {"Show the number mana cost in the spells tooltip", 
-        "Does nothing for non-mana users"}, "SpellsTooltip.ShowManaCost")
+    factory:checkbox("Show # Mana Cost", { "Show the number mana cost in the spells tooltip",
+        "Does nothing for non-mana users" }, "SpellsTooltip.ShowManaCost")
     layout:column(1)
     factory:slider("Hide Casts Above", "Hide cast count if above this threshold", "SpellsTooltip.HideCastsAbove", 0, 50)
-    factory:slider("Critical Casts Level", "Show yellow text at this threshold", "SpellsTooltip.CriticalCastsLevel", 0, 50)
+    factory:slider("Critical Casts Level", "Show yellow text at this threshold", "SpellsTooltip.CriticalCastsLevel", 0,
+        50)
     factory:checkbox("Shortened Keys", "Shortens keys to 1 letter", "SpellsTooltip.AbbreviatedKeys")
     layout:column(2):levelAt(1)
     factory:checkbox("Colored Keys", "Color code the keys as opposed to all being white", "SpellsTooltip.ColoredKeys")
@@ -552,20 +557,21 @@ function CreateTab_Options_SpellsTooltip(panel)
             Puppeteer.SpellsTooltipPowerBar:Hide()
         end
     end)
-    factory:dropdown("Show Power As", "What type of information to show for power amounts", "SpellsTooltip.ShowPowerAs", 
-        {"Power", "Power/Max Power", "Power %"})
-    factory:dropdown("Attach To", "What the tooltip should be attached to", "SpellsTooltip.AttachTo", 
-        {"Button", "Frame", "Group", "Screen"})
+    factory:dropdown("Show Power As", "What type of information to show for power amounts", "SpellsTooltip.ShowPowerAs",
+        { "Power", "Power/Max Power", "Power %" })
+    factory:dropdown("Attach To", "What the tooltip should be attached to", "SpellsTooltip.AttachTo",
+        { "Button", "Frame", "Group", "Screen" })
     layout:offset(0, 10)
-    factory:dropdown("Anchor", "Where the tooltip should be anchored", "SpellsTooltip.Anchor", 
-        {"Top Left", "Top Right", "Bottom Left", "Bottom Right"})
-    factory:checkbox("Show Item Count", {"Show the amount of your bound items", colorize("Warning: This causes lag!", 1, 0.4, 0.4)}, 
+    factory:dropdown("Anchor", "Where the tooltip should be anchored", "SpellsTooltip.Anchor",
+        { "Top Left", "Top Right", "Bottom Left", "Bottom Right" })
+    factory:checkbox("Show Item Count",
+        { "Show the amount of your bound items", colorize("Warning: This causes lag!", 1, 0.4, 0.4) },
         "SpellsTooltip.ShowItemCount")
 end
 
 function CreateTab_Options_Other(panel)
     local container = panel:CreateTab("Other")
-    local layout = NewLabeledColumnLayout(container, {150, 220, 300}, -20, 10)
+    local layout = NewLabeledColumnLayout(container, { 150, 220, 300 }, -20, 10)
     local factory = NewComponentFactory(container, layout)
     container.factory = factory
     factory:checkbox("Always Show Target", "Always show the target frame, regardless of whether you have a target or not",
@@ -573,40 +579,45 @@ function CreateTab_Options_Other(panel)
     layout:offset(0, 10)
     factory:label("Show Targets:")
     layout:column(2):levelAt(1)
-    factory:checkbox("Friendly", {"Show the Target frame when targeting friendlies", "No effect if Always Show Target is checked"},
+    factory:checkbox("Friendly",
+        { "Show the Target frame when targeting friendlies", "No effect if Always Show Target is checked" },
         "ShowTargets.Friendly", function() Puppeteer.CheckTarget() end)
     layout:column(3):levelAt(2)
-    factory:checkbox("Hostile", {"Show the Target frame when targeting hostiles", "No effect if Always Show Target is checked"},
+    factory:checkbox("Hostile",
+        { "Show the Target frame when targeting hostiles", "No effect if Always Show Target is checked" },
         "ShowTargets.Hostile", function() Puppeteer.CheckTarget() end)
     layout:column(1)
     factory:label("Hide Party Frames:")
     layout:column(2):levelAt(1)
-    factory:checkbox("In Party", {"Hide default party frames while in party", "This may cause issues with other addons"},
+    factory:checkbox("In Party",
+        { "Hide default party frames while in party", "This may cause issues with other addons" },
         "DisablePartyFrames.InParty", function() Puppeteer.CheckPartyFramesEnabled() end)
     layout:column(3):levelAt(2)
-    factory:checkbox("In Raid", {"Hide default party frames while in raid", "This may cause issues with other addons"},
+    factory:checkbox("In Raid", { "Hide default party frames while in raid", "This may cause issues with other addons" },
         "DisablePartyFrames.InRaid", function() Puppeteer.CheckPartyFramesEnabled() end)
     layout:column(1)
-    factory:checkbox("Hide While Solo", "If enabled, all Puppeteer frames will be hidden when not in a party or raid", 
+    factory:checkbox("Hide While Solo", "If enabled, all Puppeteer frames will be hidden when not in a party or raid",
         "HideWhileSolo", function() Puppeteer.CheckGroup() end)
-    local dragAllCheckbox = factory:checkbox("Drag All Frames", {"If enabled, all frames will be moved when dragging", 
-        "Use the inverse key to move a single frame; Opposite effect if disabled"}, "FrameDrag.MoveAll")
+    local dragAllCheckbox = factory:checkbox("Drag All Frames", { "If enabled, all frames will be moved when dragging",
+        "Use the inverse key to move a single frame; Opposite effect if disabled" }, "FrameDrag.MoveAll")
     layout:ignoreNext()
-    local inverseDropdown = factory:dropdown("Inverse Key", {"This key will be used to do the opposite of the default drag operation"}, 
-        "FrameDrag.AltMoveKey", {"Shift", "Control", "Alt"})
+    local inverseDropdown = factory:dropdown("Inverse Key",
+        { "This key will be used to do the opposite of the default drag operation" },
+        "FrameDrag.AltMoveKey", { "Shift", "Control", "Alt" })
     inverseDropdown:SetWidth(80)
     inverseDropdown:SetPoint("LEFT", dragAllCheckbox, "RIGHT", 90, 0)
-    factory:checkbox("Show Heal Predictions", {"See predictions on incoming healing", "Improved predictions if using SuperWoW"},
+    factory:checkbox("Show Heal Predictions",
+        { "See predictions on incoming healing", "Improved predictions if using SuperWoW" },
         "UseHealPredictions", function() Puppeteer.UpdateAllIncomingHealing() end)
 
-    factory:checkbox("(TWoW) LFT Auto Role", {"Automatically assign roles when joining LFT groups", 
-            "This functionality was tested for 1.18.0 and may break in future updates"}, "LFTAutoRole",
-            function() Puppeteer.SetLFTAutoRoleEnabled(PTOptions.LFTAutoRole) end)
+    factory:checkbox("(TWoW) LFT Auto Role", { "Automatically assign roles when joining LFT groups",
+            "This functionality was tested for 1.18.0 and may break in future updates" }, "LFTAutoRole",
+        function() Puppeteer.SetLFTAutoRoleEnabled(PTOptions.LFTAutoRole) end)
 end
 
 function CreateTab_Options_Advanced(panel)
     local container = panel:CreateTab("Advanced")
-    local layout = NewLabeledColumnLayout(container, {150, 220, 300}, 0, 10)
+    local layout = NewLabeledColumnLayout(container, { 150, 220, 300 }, 0, 10)
     local factory = NewComponentFactory(container, layout)
     container.factory = factory
 
@@ -615,19 +626,22 @@ function CreateTab_Options_Advanced(panel)
     local experimentsLabel = CreateLabel(container, "Experiments")
         :SetPoint("TOP", container, "TOP", 0, -20)
         :SetFontSize(14)
-    local experimentsInfo = CreateLabel(container, "Features which are not complete and/or need more testing. Use at your own risk.")
+    local experimentsInfo = CreateLabel(container,
+            "Features which are not complete and/or need more testing. Use at your own risk.")
         :SetWidth(TEXT_WIDTH)
         :SetPoint("TOP", experimentsLabel, "BOTTOM", 0, -5)
     layout:offset(0, -70)
-    factory:checkbox("(TWoW) Auto Role", {"If enabled, the Role Action menu shows auto role detection options",
-        colorize("Using this functionality WILL cause errors and other unexpected behavior", 1, 0.4, 0.4)}, "Global.Experiments.AutoRole",
+    factory:checkbox("(TWoW) Auto Role", { "If enabled, the Role Action menu shows auto role detection options",
+            colorize("Using this functionality WILL cause errors and other unexpected behavior", 1, 0.4, 0.4) },
+        "Global.Experiments.AutoRole",
         Puppeteer.InitRoleDropdown)
 
     local scriptsLabel = CreateLabel(container, "Load & Postload Scripts")
         :SetPoint("TOP", container, "TOP", 0, -105)
         :SetFontSize(14)
 
-    local loadScriptInfo = CreateLabel(container, "The Load Script runs after profiles are initialized, but before UIs are created, "..
+    local loadScriptInfo = CreateLabel(container,
+            "The Load Script runs after profiles are initialized, but before UIs are created, " ..
             "making it good for editing profile attributes. GetProfile and CreateProfile are defined locals.")
         :SetWidth(TEXT_WIDTH)
         :SetPoint("TOP", scriptsLabel, "BOTTOM", 0, -10)
@@ -651,8 +665,8 @@ function CreateTab_Options_Advanced(panel)
             editor:GetEditbox():SetFocus()
             AddOverlayFrame(editor)
         end)
-    local postLoadScriptInfo = CreateLabel(container, "The Postload Script runs after everything is initialized. "..
-        "GetProfile and CreateProfile are defined locals.")
+    local postLoadScriptInfo = CreateLabel(container, "The Postload Script runs after everything is initialized. " ..
+            "GetProfile and CreateProfile are defined locals.")
         :SetWidth(TEXT_WIDTH)
         :SetPoint("TOP", loadScriptButton, "BOTTOM", 0, -10)
     local postLoadScriptButton = PTGuiLib.Get("button", container)
@@ -689,13 +703,14 @@ end
 
 function CreateTab_Options_Mods(panel)
     local container, scrollFrame = panel:CreateTab("Mods", true)
-    local layout = NewLabeledColumnLayout(container, {150, 310}, -20, 10)
+    local layout = NewLabeledColumnLayout(container, { 150, 310 }, -20, 10)
     local factory = NewComponentFactory(container, layout)
     container.factory = factory
 
     local TEXT_WIDTH = 370
 
-    local generalInfo = CreateLabel(container, "Some client mods enhance your experience with Puppeteer by enabling additional functionality.")
+    local generalInfo = CreateLabel(container,
+            "Some client mods enhance your experience with Puppeteer by enabling additional functionality.")
         :SetWidth(TEXT_WIDTH)
         :SetPoint("TOP", container, "TOP", 0, -10)
 
@@ -714,13 +729,13 @@ function CreateTab_Options_Mods(panel)
         :SetPoint("TOP", superWowLabel, "BOTTOM", 0, -5)
         :SetFontSize(10)
         :SetFontFlags("OUTLINE")
-    local superWowInfo = CreateLabel(container, "SuperWoW provides the following enhancements:\n\n"..
-        "• Enables tracking of many class buff and debuff timers\n"..
-        "• Enhances spell casting by directly casting on targets rather than split-second target switching tricks\n"..
-        "• Allows you to see accurate distance to other friendly players and NPCs\n"..
-        "• Mousing over unit frames properly sets your mouseover target\n"..
-        "• Shows incoming healing from players that do not have HealComm and predicts more accurate numbers\n"..
-        "• Add players/mobs to a separate Focus frame (By using the Focus action bind)")
+    local superWowInfo = CreateLabel(container, "SuperWoW provides the following enhancements:\n\n" ..
+            "• Enables tracking of many class buff and debuff timers\n" ..
+            "• Enhances spell casting by directly casting on targets rather than split-second target switching tricks\n" ..
+            "• Allows you to see accurate distance to other friendly players and NPCs\n" ..
+            "• Mousing over unit frames properly sets your mouseover target\n" ..
+            "• Shows incoming healing from players that do not have HealComm and predicts more accurate numbers\n" ..
+            "• Add players/mobs to a separate Focus frame (By using the Focus action bind)")
         :SetJustifyH("LEFT")
         :SetWidth(TEXT_WIDTH)
         :SetPoint("TOP", superWowDetectedLabel, "BOTTOM", 0, -10)
@@ -731,8 +746,8 @@ function CreateTab_Options_Mods(panel)
         :SetPoint("RIGHT", superWowLink, "LEFT", -5, 0)
 
     layout:ignoreNext()
-    local setMouseoverCheckbox = factory:checkbox("Set Mouseover", {"Requires SuperWoW Mod To Work", 
-        "If enabled, hovering over frames will set your mouseover target"}, "SetMouseover")
+    local setMouseoverCheckbox = factory:checkbox("Set Mouseover", { "Requires SuperWoW Mod To Work",
+            "If enabled, hovering over frames will set your mouseover target" }, "SetMouseover")
         :SetPoint("TOP", superWowLink, "BOTTOM", 0, -10)
     if not superWowDetected then
         setMouseoverCheckbox:Disable()
@@ -747,10 +762,10 @@ function CreateTab_Options_Mods(panel)
         :SetPoint("TOP", unitXPLabel, "BOTTOM", 0, -5)
         :SetFontSize(10)
         :SetFontFlags("OUTLINE")
-    
-    local unitXPInfo = CreateLabel(container, "UnitXP SP3 provides the following enhancements:\n\n"..
-        "• Displays when units are out of line-of-sight\n"..
-        "• Allows you to see more accurate distance than SuperWoW and also see distance to enemies")
+
+    local unitXPInfo = CreateLabel(container, "UnitXP SP3 provides the following enhancements:\n\n" ..
+            "• Displays when units are out of line-of-sight\n" ..
+            "• Allows you to see more accurate distance than SuperWoW and also see distance to enemies")
         :SetJustifyH("LEFT")
         :SetWidth(TEXT_WIDTH)
         :SetPoint("TOP", unitXPDetectedLabel, "BOTTOM", 0, -10)
@@ -769,9 +784,9 @@ function CreateTab_Options_Mods(panel)
         :SetPoint("TOP", nampowerLabel, "BOTTOM", 0, -5)
         :SetFontSize(10)
         :SetFontFlags("OUTLINE")
-    
-    local nampowerInfo = CreateLabel(container, "Nampower provides the following enhancements:\n\n"..
-        "• Allows you to queue spell casts like in modern versions of WoW, drastically increasing casting efficiency")
+
+    local nampowerInfo = CreateLabel(container, "Nampower provides the following enhancements:\n\n" ..
+            "• Allows you to queue spell casts like in modern versions of WoW, drastically increasing casting efficiency")
         :SetJustifyH("LEFT")
         :SetWidth(TEXT_WIDTH)
         :SetPoint("TOP", nampowerDetectedLabel, "BOTTOM", 0, -10)
@@ -780,9 +795,9 @@ function CreateTab_Options_Mods(panel)
         :SetSize(300, 20)
     local nampowerLinkLabel = CreateLabel(container, "Link:")
         :SetPoint("RIGHT", nampowerLink, "LEFT", -5, 0)
-    
 
-    
+
+
     scrollFrame:UpdateScrollRange()
 end
 
@@ -794,7 +809,7 @@ function CreateTab_Customize()
         :SetPoint("TOPRIGHT", container, "TOPRIGHT", -20, -10)
     local function UpdateProfileLabel()
         local profileName = PTProfileData.GetCurrentCharacterProfile()
-        profileLabel:SetText(colorize("Profile: "..profileName, 0.7, 0.7, 0.7))
+        profileLabel:SetText(colorize("Profile: " .. profileName, 0.7, 0.7, 0.7))
     end
     UpdateProfileLabel()
 
@@ -802,15 +817,16 @@ function CreateTab_Customize()
         :SetSimpleBackground()
         :SetPoint("TOPLEFT", container, "TOPLEFT", 5, -26)
         :SetPoint("BOTTOMRIGHT", container, "TOPRIGHT", -5, -155)
-    local layout = NewLabeledColumnLayout(frameStyleContainer, {100, 340, 175}, -25, 5)
+    local layout = NewLabeledColumnLayout(frameStyleContainer, { 100, 340, 175 }, -25, 5)
 
     local frameSettingsText = CreateLabel(frameStyleContainer, "Frame Group Settings")
         :SetPoint("TOP", frameStyleContainer, "TOP", 0, -5)
         :SetFontSize(14)
-    
 
-    local preferredFrameOrder = {"Party", "Pets", "Raid", "Raid Pets", "Target", "Focus"}
-    local frameDropdown = CreateLabeledDropdown(frameStyleContainer, "Configure Frame", "The frame to edit the attributes of")
+
+    local preferredFrameOrder = { "Party", "Pets", "Raid", "Raid Pets", "Target", "Focus" }
+    local frameDropdown = CreateLabeledDropdown(frameStyleContainer, "Configure Frame",
+            "The frame to edit the attributes of")
         :SetWidth(150)
         :SetDynamicOptions(function(addOption, level, args)
             for _, name in ipairs(preferredFrameOrder) do
@@ -910,7 +926,7 @@ function CreateTab_Customize()
 
 
 
-    local anchors = {"TOPLEFT", "TOP", "TOPRIGHT", "LEFT", "CENTER", "RIGHT", "BOTTOMLEFT", "BOTTOM", "BOTTOMRIGHT"}
+    local anchors = { "TOPLEFT", "TOP", "TOPRIGHT", "LEFT", "CENTER", "RIGHT", "BOTTOMLEFT", "BOTTOM", "BOTTOMRIGHT" }
     local readableAnchorMap = {
         TOPLEFT = "Top Left",
         TOP = "Top",
@@ -922,17 +938,17 @@ function CreateTab_Customize()
         BOTTOM = "Bottom",
         BOTTOMRIGHT = "Bottom Right"
     }
-    local anchorDropdown = CreateLabeledDropdown(frameStyleContainer, "Anchor", 
-            {"The point the frame is anchored to, affecting the direction it expands/retracts",
-            "Top Left: Expands right and down",
-            "Top: Expands equally left & right and down",
-            "Top Right: Expands left and down",
-            "Left: Expands right and equally up & down",
-            "Center: Expands equally in all directions",
-            "Right: Expands left and equally up & down",
-            "Bottom Left: Expands right and up",
-            "Bottom: Expands equally left & right and up",
-            "Bottom Right: Expands left and up",})
+    local anchorDropdown = CreateLabeledDropdown(frameStyleContainer, "Anchor",
+            { "The point the frame is anchored to, affecting the direction it expands/retracts",
+                "Top Left: Expands right and down",
+                "Top: Expands equally left & right and down",
+                "Top Right: Expands left and down",
+                "Left: Expands right and equally up & down",
+                "Center: Expands equally in all directions",
+                "Right: Expands left and equally up & down",
+                "Bottom Left: Expands right and up",
+                "Bottom: Expands equally left & right and up",
+                "Bottom Right: Expands left and up", })
         :SetWidth(150)
         :SetSimpleOptions(anchors, function(option)
             return {
@@ -954,8 +970,9 @@ function CreateTab_Customize()
     layout:layoutComponent(anchorDropdown)
     AnchorDropdown = anchorDropdown
 
-    local lockFrameCheckbox = CreateLabeledCheckbox(frameStyleContainer, "Lock Frame", {"If checked, this frame will not be movable", 
-        "Note: This setting is also accessible by right-clicking the group title bar"})
+    local lockFrameCheckbox = CreateLabeledCheckbox(frameStyleContainer, "Lock Frame",
+            { "If checked, this frame will not be movable",
+                "Note: This setting is also accessible by right-clicking the group title bar" })
         :OnClick(function(self)
             local frameName = frameDropdown:GetText()
             PuppeteerSettings.SetFrameLocked(frameName, self:GetChecked() == 1)
@@ -963,8 +980,9 @@ function CreateTab_Customize()
     layout:column(2):offset(0, -30):layoutComponent(lockFrameCheckbox)
     LockFrameCheckbox = lockFrameCheckbox
 
-    local hideTitleCheckbox = CreateLabeledCheckbox(frameStyleContainer, "Hide Title", {"If checked, the title of this frame will be hidden", 
-        colorize("Note: When you want to move the frame, you need to enable the title!", 1, 0.4, 0.4)})
+    local hideTitleCheckbox = CreateLabeledCheckbox(frameStyleContainer, "Hide Title",
+            { "If checked, the title of this frame will be hidden",
+                colorize("Note: When you want to move the frame, you need to enable the title!", 1, 0.4, 0.4) })
         :OnClick(function(self)
             local frameName = frameDropdown:GetText()
             PuppeteerSettings.SetTitleHidden(frameName, self:GetChecked() == 1)
@@ -972,7 +990,8 @@ function CreateTab_Customize()
     layout:layoutComponent(hideTitleCheckbox)
     HideTitleCheckbox = hideTitleCheckbox
 
-    local hideFrameCheckbox = CreateLabeledCheckbox(frameStyleContainer, "Hide Frame", "If checked, this frame will not be visible")
+    local hideFrameCheckbox = CreateLabeledCheckbox(frameStyleContainer, "Hide Frame",
+            "If checked, this frame will not be visible")
         :OnClick(function(self)
             local frameName = frameDropdown:GetText()
             PuppeteerSettings.SetFrameHidden(frameName, self:GetChecked() == 1)
@@ -988,7 +1007,7 @@ function CreateTab_Customize()
         :SetSimpleBackground()
         :SetPoint("TOPLEFT", frameStyleContainer, "BOTTOMLEFT", 0, -5)
         :SetPoint("TOPRIGHT", container, "TOPRIGHT", -5, -5)
-        :SetHeight(80)  -- Height to fit title + subtitle + dropdown
+        :SetHeight(80) -- Height to fit title + subtitle + dropdown
 
     -- Category-based customization section
     categoryContainer = PTGuiLib.Get("scroll_frame", container)
@@ -1020,7 +1039,7 @@ function CreateTab_Customize()
     local fontsSection = PTGuiLib.Get("container", categoryContainer)
 
     -- Position all sections in the same place (anchor to scroll frame for proper scrolling)
-    for _, section in ipairs({dimensionsSection, colorsSection, texturesSection, displaysSection, layoutsSection, fontsSection}) do
+    for _, section in ipairs({ dimensionsSection, colorsSection, texturesSection, displaysSection, layoutsSection, fontsSection }) do
         section:SetPoint("TOP", categoryContainer, "TOP", 0, -10)
         section:SetPoint("LEFT", categoryContainer, "LEFT", 5, 0)
         section:SetPoint("RIGHT", categoryContainer, "RIGHT", -5, 0)
@@ -1063,16 +1082,15 @@ function CreateTab_Customize()
         elseif currentCategory == "Layouts" then
             layoutsSection:Show()
             if UpdateLayoutsSection then UpdateLayoutsSection() end
-                                                             elseif currentCategory == "Fonts" then
-                                                                 fontsSection:Hide() -- Force a redraw
-                                                                 fontsSection:Show()
-                                                                 categoryContainer:UpdateScrollChildRect() -- Force scroll frame update
-                                                                 if UpdateFontsSection then UpdateFontsSection() end
-                                                             end          -- Update scroll area to fit the new content
+         elseif currentCategory == "Fonts" then
+             fontsSection:Hide() -- Force a redraw
+             fontsSection:Show()
+             if UpdateFontsSection then UpdateFontsSection() end
+         end
+
+          -- Update scroll area to fit the new content
           if categoryContainer then
               categoryContainer:UpdateScrollChildRect()
-              categoryContainer:Hide() -- Force redraw of the parent container
-              categoryContainer:Show()
           end
           if categoryDropdown then
               categoryDropdown:UpdateText()
@@ -1239,7 +1257,8 @@ function CreateTab_Customize()
                         PTGlobalProfiles.StyleOverrides[profileName] = {}
                     end
                     SetStyleOverride(PTGlobalProfiles.StyleOverrides[profileName], "HealthTexts.Normal.Color", self.text)
-                    SetStyleOverride(PTGlobalProfiles.StyleOverrides[profileName], "HealthTexts.WithMissing.Color", self.text)
+                    SetStyleOverride(PTGlobalProfiles.StyleOverrides[profileName], "HealthTexts.WithMissing.Color",
+                        self.text)
                     PTProfileManager.ApplyOverrides(profileName)
                     RefreshFrameGroup(selectedFrame)
                     gui:UpdateText()
@@ -1253,7 +1272,8 @@ function CreateTab_Customize()
             end)
 
         -- Missing Health Color
-        local missingHealthColorDropdown = CreateLabeledDropdown(section, "Missing Health Color", "Color of missing health text")
+        local missingHealthColorDropdown = CreateLabeledDropdown(section, "Missing Health Color",
+                "Color of missing health text")
             :SetWidth(150)
             :SetPoint("TOP", healthColorDropdown, "BOTTOM", 0, -15)
             :SetDynamicOptions(function(addOption, level, args)
@@ -1276,7 +1296,8 @@ function CreateTab_Customize()
                     if not PTGlobalProfiles.StyleOverrides[profileName] then
                         PTGlobalProfiles.StyleOverrides[profileName] = {}
                     end
-                    SetStyleOverride(PTGlobalProfiles.StyleOverrides[profileName], "HealthTexts.Missing.Color", self.text)
+                    SetStyleOverride(PTGlobalProfiles.StyleOverrides[profileName], "HealthTexts.Missing.Color", self
+                        .text)
                     PTProfileManager.ApplyOverrides(profileName)
                     RefreshFrameGroup(selectedFrame)
                     gui:UpdateText()
@@ -1331,7 +1352,7 @@ function CreateTab_Customize()
             :SetWidth(150)
             :SetPoint("TOP", powerColorDropdown, "BOTTOM", 0, -15)
             :SetDynamicOptions(function(addOption, level, args)
-                local options = {"Green To Red", "Green", "Class"}
+                local options = { "Green To Red", "Green", "Class" }
                 for _, option in ipairs(options) do
                     addOption("text", option,
                         "initFunc", args.initFunc,
@@ -1362,11 +1383,12 @@ function CreateTab_Customize()
             end)
 
         -- Show Debuff Colors On
-        local showDebuffColorsDropdown = CreateLabeledDropdown(section, "Show Debuff Colors On", "Where to show debuff type colors")
+        local showDebuffColorsDropdown = CreateLabeledDropdown(section, "Show Debuff Colors On",
+                "Where to show debuff type colors")
             :SetWidth(150)
             :SetPoint("TOP", healthBarColorDropdown, "BOTTOM", 0, -15)
             :SetDynamicOptions(function(addOption, level, args)
-                local options = {"Health Bar", "Name", "Health", "Hidden"}
+                local options = { "Health Bar", "Name", "Health", "Hidden" }
                 for _, option in ipairs(options) do
                     addOption("text", option,
                         "initFunc", args.initFunc,
@@ -1533,7 +1555,7 @@ function CreateTab_Customize()
         local healthDisplayDropdown = CreateDisplayDropdown(section, "Health Display",
             "What kind of text is displayed as health",
             "HealthDisplay",
-            {"Health", "Health/Max Health", "% Health", "Hidden"},
+            { "Health", "Health/Max Health", "% Health", "Hidden" },
             -10,
             "Health")
 
@@ -1541,7 +1563,7 @@ function CreateTab_Customize()
         local missingHealthDisplayDropdown = CreateDisplayDropdown(section, "Missing Health Display",
             "What kind of text is displayed as missing health",
             "MissingHealthDisplay",
-            {"-Health", "-% Health", "Hidden"},
+            { "-Health", "-% Health", "Hidden" },
             -55,
             "-Health")
 
@@ -1549,7 +1571,7 @@ function CreateTab_Customize()
         local powerDisplayDropdown = CreateDisplayDropdown(section, "Power Display",
             "What kind of text is displayed as power",
             "PowerDisplay",
-            {"Power", "Power/Max Power", "% Power", "Hidden"},
+            { "Power", "Power/Max Power", "% Power", "Hidden" },
             -100,
             "Power")
 
@@ -1557,7 +1579,7 @@ function CreateTab_Customize()
         local incomingHealDisplayDropdown = CreateDisplayDropdown(section, "Incoming Heal Display",
             "Show incoming heals on units",
             "IncomingHealDisplay",
-            {"Overheal", "Heal", "Hidden"},
+            { "Overheal", "Heal", "Hidden" },
             -145,
             "Hidden")
 
@@ -1565,7 +1587,7 @@ function CreateTab_Customize()
         local outOfRangeOpacityDropdown = CreateDisplayDropdown(section, "Out of Range Opacity",
             "How opaque out of range players appear in %",
             "OutOfRangeOpacity",
-            {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100},
+            { 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 },
             -190,
             50)
 
@@ -1626,7 +1648,7 @@ function CreateTab_Customize()
         local sortUnitsDropdown = CreateLayoutDropdown(section, "Sort Units By",
             "The sorting algorithm for units in a group",
             "SortUnitsBy",
-            {"ID", "Name", "Class Name"},
+            { "ID", "Name", "Class Name" },
             -10,
             "ID")
 
@@ -1634,7 +1656,7 @@ function CreateTab_Customize()
         local orientationDropdown = CreateLayoutDropdown(section, "Growth Orientation",
             "Vertical grows units up and down, Horizontal grows units left and right",
             "Orientation",
-            {"Vertical", "Horizontal"},
+            { "Vertical", "Horizontal" },
             -55,
             "Vertical")
 
@@ -1642,7 +1664,7 @@ function CreateTab_Customize()
         local borderStyleDropdown = CreateLayoutDropdown(section, "Border Style",
             "The border of the group",
             "BorderStyle",
-            {"Tooltip", "Dialog Box", "Borderless"},
+            { "Tooltip", "Dialog Box", "Borderless" },
             -100,
             "Tooltip")
 
@@ -1650,7 +1672,7 @@ function CreateTab_Customize()
         local maxUnitsInAxisDropdown = CreateLayoutDropdown(section, "Max Units In Axis",
             "The maximum number of units in the growth axis until it must shift down",
             "MaxUnitsInAxis",
-            {1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
+            { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
             -145,
             5)
 
@@ -1658,7 +1680,7 @@ function CreateTab_Customize()
         local minUnitsXDropdown = CreateLayoutDropdown(section, "Min Units X",
             "The minimum amount of unit space to take on the X-axis",
             "MinUnitsX",
-            {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
+            { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
             -190,
             0)
 
@@ -1666,7 +1688,7 @@ function CreateTab_Customize()
         local minUnitsYDropdown = CreateLayoutDropdown(section, "Min Units Y",
             "The minimum amount of unit space to take on the Y-axis",
             "MinUnitsY",
-            {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
+            { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
             -235,
             0)
 
@@ -1674,7 +1696,7 @@ function CreateTab_Customize()
         local horizontalSpacingDropdown = CreateLayoutDropdown(section, "Horizontal Spacing",
             "The number of pixels between units",
             "HorizontalSpacing",
-            {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
+            { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
             -280,
             0)
 
@@ -1682,7 +1704,7 @@ function CreateTab_Customize()
         local verticalSpacingDropdown = CreateLayoutDropdown(section, "Vertical Spacing",
             "The number of pixels between units",
             "VerticalSpacing",
-            {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
+            { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
             -325,
             0)
 
@@ -1748,7 +1770,7 @@ function CreateTab_Customize()
         fontStyleDropdown = CreateLabeledDropdown(section, "Font Style", "Text rendering style")
             :SetWidth(200)
             :SetPoint("TOP", fontDropdown, "BOTTOM", 0, -15)
-            :SetSimpleOptions({"None", "Outline", "Thick Outline", "Monochrome"}, function(option)
+            :SetSimpleOptions({ "None", "Outline", "Thick Outline", "Monochrome" }, function(option)
                 local flagMap = {
                     ["None"] = nil,
                     ["Outline"] = "OUTLINE",
@@ -1897,7 +1919,7 @@ function CreateTab_Customize()
                 :SetWidth(200)
                 :SetPoint("TOP", anchorElement, "BOTTOM", 0, yOffset)
                 :SetDynamicOptions(function(addOption, level, args)
-                    local options = {"Health Bar", "Power Bar", "Button", "Container"}
+                    local options = { "Health Bar", "Power Bar", "Button", "Container" }
                     for _, option in ipairs(options) do
                         addOption("text", option,
                             "initFunc", args.initFunc,
@@ -1919,7 +1941,7 @@ function CreateTab_Customize()
                         if not PTGlobalProfiles.StyleOverrides[profileName] then
                             PTGlobalProfiles.StyleOverrides[profileName] = {}
                         end
-                        SetStyleOverride(PTGlobalProfiles.StyleOverrides[profileName], textPath..".Anchor", self.text)
+                        SetStyleOverride(PTGlobalProfiles.StyleOverrides[profileName], textPath .. ".Anchor", self.text)
                         PTProfileManager.ApplyOverrides(profileName)
                         RefreshFrameGroup(selectedFrame)
                         gui:UpdateText()
@@ -1939,8 +1961,9 @@ function CreateTab_Customize()
 
         -- Helper to create alignment dropdown
         local function CreateAlignmentDropdown(anchorElement, label, textPath, alignType, yOffset)
-            local options = alignType == "AlignmentH" and {"LEFT", "CENTER", "RIGHT"} or {"TOP", "CENTER", "BOTTOM"}
-            local dropdown = CreateLabeledDropdown(section, label .. " " .. (alignType == "AlignmentH" and "Horizontal" or "Vertical"), "Text alignment")
+            local options = alignType == "AlignmentH" and { "LEFT", "CENTER", "RIGHT" } or { "TOP", "CENTER", "BOTTOM" }
+            local dropdown = CreateLabeledDropdown(section,
+                    label .. " " .. (alignType == "AlignmentH" and "Horizontal" or "Vertical"), "Text alignment")
                 :SetWidth(200)
                 :SetPoint("TOP", anchorElement, "BOTTOM", 0, yOffset)
                 :SetDynamicOptions(function(addOption, level, args)
@@ -1966,7 +1989,8 @@ function CreateTab_Customize()
                         if not PTGlobalProfiles.StyleOverrides[profileName] then
                             PTGlobalProfiles.StyleOverrides[profileName] = {}
                         end
-                        SetStyleOverride(PTGlobalProfiles.StyleOverrides[profileName], textPath.."."..alignType, self.text)
+                        SetStyleOverride(PTGlobalProfiles.StyleOverrides[profileName], textPath .. "." .. alignType,
+                            self.text)
                         PTProfileManager.ApplyOverrides(profileName)
                         RefreshFrameGroup(selectedFrame)
                         gui:UpdateText()
@@ -1987,7 +2011,8 @@ function CreateTab_Customize()
 
         -- Helper to create offset slider
         local function CreateOffsetSlider(anchorElement, label, textPath, offsetType, yOffset)
-            local slider = CreateLabeledSlider(section, label .. " " .. offsetType, "Pixel offset " .. string.lower(offsetType))
+            local slider = CreateLabeledSlider(section, label .. " " .. offsetType,
+                    "Pixel offset " .. string.lower(offsetType))
                 :SetPoint("TOP", anchorElement, "BOTTOM", 0, yOffset)
                 :SetMinMaxValues(-100, 100)
                 :SetValueStep(1)
@@ -2000,7 +2025,8 @@ function CreateTab_Customize()
                 if not PTGlobalProfiles.StyleOverrides[profileName] then
                     PTGlobalProfiles.StyleOverrides[profileName] = {}
                 end
-                SetStyleOverride(PTGlobalProfiles.StyleOverrides[profileName], textPath.."."..offsetType, self:GetValue())
+                SetStyleOverride(PTGlobalProfiles.StyleOverrides[profileName], textPath .. "." .. offsetType,
+                    self:GetValue())
                 PTProfileManager.ApplyOverrides(profileName)
                 RefreshFrameGroup(selectedFrame)
             end)
@@ -2019,15 +2045,17 @@ function CreateTab_Customize()
         local nameAnchorDropdown = CreateAnchorDropdown(textPositioningSubtitle, "Name Text", "NameText", -15)
         local nameAlignH = CreateAlignmentDropdown(nameAnchorDropdown, "Name Text", "NameText", "AlignmentH", -15)
         local nameAlignV = CreateAlignmentDropdown(nameAlignH, "Name Text", "NameText", "AlignmentV", -15)
-        local nameOffsetXSlider, updateNameOffsetX = CreateOffsetSlider(nameAlignV, "Name Text", "NameText", "OffsetX", -15)
-        local nameOffsetYSlider, updateNameOffsetY = CreateOffsetSlider(nameOffsetXSlider, "Name Text", "NameText", "OffsetY", -15)
+        local nameOffsetXSlider, updateNameOffsetX = CreateOffsetSlider(nameAlignV, "Name Text", "NameText", "OffsetX",
+            -15)
+        local nameOffsetYSlider, updateNameOffsetY = CreateOffsetSlider(nameOffsetXSlider, "Name Text", "NameText",
+            "OffsetY", -15)
 
         -- Health Text Positioning (applies to both Normal and WithMissing)
         local healthAnchorDropdown = CreateLabeledDropdown(section, "Health Text Anchor", "What element to anchor to")
             :SetWidth(200)
             :SetPoint("TOP", nameOffsetYSlider, "BOTTOM", 0, -30)
             :SetDynamicOptions(function(addOption, level, args)
-                local options = {"Health Bar", "Power Bar", "Button", "Container"}
+                local options = { "Health Bar", "Power Bar", "Button", "Container" }
                 for _, option in ipairs(options) do
                     addOption("text", option,
                         "initFunc", args.initFunc,
@@ -2045,8 +2073,10 @@ function CreateTab_Customize()
                     if not PTGlobalProfiles.StyleOverrides[profileName] then
                         PTGlobalProfiles.StyleOverrides[profileName] = {}
                     end
-                    SetStyleOverride(PTGlobalProfiles.StyleOverrides[profileName], "HealthTexts.Normal.Anchor", self.text)
-                    SetStyleOverride(PTGlobalProfiles.StyleOverrides[profileName], "HealthTexts.WithMissing.Anchor", self.text)
+                    SetStyleOverride(PTGlobalProfiles.StyleOverrides[profileName], "HealthTexts.Normal.Anchor", self
+                        .text)
+                    SetStyleOverride(PTGlobalProfiles.StyleOverrides[profileName], "HealthTexts.WithMissing.Anchor",
+                        self.text)
                     PTProfileManager.ApplyOverrides(profileName)
                     RefreshFrameGroup(selectedFrame)
                     gui:UpdateText()
@@ -2062,7 +2092,7 @@ function CreateTab_Customize()
         local healthAlignH = CreateLabeledDropdown(section, "Health Text Horizontal", "Horizontal text alignment")
             :SetWidth(200)
             :SetPoint("TOP", healthAnchorDropdown, "BOTTOM", 0, -15)
-            :SetSimpleOptions({"LEFT", "CENTER", "RIGHT"}, function(option)
+            :SetSimpleOptions({ "LEFT", "CENTER", "RIGHT" }, function(option)
                 return {
                     text = option,
                     initFunc = function(self)
@@ -2076,8 +2106,10 @@ function CreateTab_Customize()
                         if not PTGlobalProfiles.StyleOverrides[profileName] then
                             PTGlobalProfiles.StyleOverrides[profileName] = {}
                         end
-                        SetStyleOverride(PTGlobalProfiles.StyleOverrides[profileName], "HealthTexts.Normal.AlignmentH", self.text)
-                        SetStyleOverride(PTGlobalProfiles.StyleOverrides[profileName], "HealthTexts.WithMissing.AlignmentH", self.text)
+                        SetStyleOverride(PTGlobalProfiles.StyleOverrides[profileName], "HealthTexts.Normal.AlignmentH",
+                            self.text)
+                        SetStyleOverride(PTGlobalProfiles.StyleOverrides[profileName],
+                            "HealthTexts.WithMissing.AlignmentH", self.text)
                         PTProfileManager.ApplyOverrides(profileName)
                         RefreshFrameGroup(selectedFrame)
                         gui:UpdateText()
@@ -2093,7 +2125,7 @@ function CreateTab_Customize()
         local healthAlignV = CreateLabeledDropdown(section, "Health Text Vertical", "Vertical text alignment")
             :SetWidth(200)
             :SetPoint("TOP", healthAlignH, "BOTTOM", 0, -15)
-            :SetSimpleOptions({"TOP", "CENTER", "BOTTOM"}, function(option)
+            :SetSimpleOptions({ "TOP", "CENTER", "BOTTOM" }, function(option)
                 return {
                     text = option,
                     initFunc = function(self)
@@ -2107,8 +2139,10 @@ function CreateTab_Customize()
                         if not PTGlobalProfiles.StyleOverrides[profileName] then
                             PTGlobalProfiles.StyleOverrides[profileName] = {}
                         end
-                        SetStyleOverride(PTGlobalProfiles.StyleOverrides[profileName], "HealthTexts.Normal.AlignmentV", self.text)
-                        SetStyleOverride(PTGlobalProfiles.StyleOverrides[profileName], "HealthTexts.WithMissing.AlignmentV", self.text)
+                        SetStyleOverride(PTGlobalProfiles.StyleOverrides[profileName], "HealthTexts.Normal.AlignmentV",
+                            self.text)
+                        SetStyleOverride(PTGlobalProfiles.StyleOverrides[profileName],
+                            "HealthTexts.WithMissing.AlignmentV", self.text)
                         PTProfileManager.ApplyOverrides(profileName)
                         RefreshFrameGroup(selectedFrame)
                         gui:UpdateText()
@@ -2140,7 +2174,8 @@ function CreateTab_Customize()
                 PTGlobalProfiles.StyleOverrides[profileName] = {}
             end
             SetStyleOverride(PTGlobalProfiles.StyleOverrides[profileName], "HealthTexts.Normal.OffsetX", self:GetValue())
-            SetStyleOverride(PTGlobalProfiles.StyleOverrides[profileName], "HealthTexts.WithMissing.OffsetX", self:GetValue())
+            SetStyleOverride(PTGlobalProfiles.StyleOverrides[profileName], "HealthTexts.WithMissing.OffsetX",
+                self:GetValue())
             PTProfileManager.ApplyOverrides(profileName)
             RefreshFrameGroup(selectedFrame)
         end)
@@ -2164,7 +2199,8 @@ function CreateTab_Customize()
                 PTGlobalProfiles.StyleOverrides[profileName] = {}
             end
             SetStyleOverride(PTGlobalProfiles.StyleOverrides[profileName], "HealthTexts.Normal.OffsetY", self:GetValue())
-            SetStyleOverride(PTGlobalProfiles.StyleOverrides[profileName], "HealthTexts.WithMissing.OffsetY", self:GetValue())
+            SetStyleOverride(PTGlobalProfiles.StyleOverrides[profileName], "HealthTexts.WithMissing.OffsetY",
+                self:GetValue())
             PTProfileManager.ApplyOverrides(profileName)
             RefreshFrameGroup(selectedFrame)
         end)
@@ -2173,8 +2209,10 @@ function CreateTab_Customize()
         local powerAnchorDropdown = CreateAnchorDropdown(healthOffsetYSlider, "Power Text", "PowerText", -30)
         local powerAlignH = CreateAlignmentDropdown(powerAnchorDropdown, "Power Text", "PowerText", "AlignmentH", -15)
         local powerAlignV = CreateAlignmentDropdown(powerAlignH, "Power Text", "PowerText", "AlignmentV", -15)
-        local powerOffsetXSlider, updatePowerOffsetX = CreateOffsetSlider(powerAlignV, "Power Text", "PowerText", "OffsetX", -15)
-        local powerOffsetYSlider, updatePowerOffsetY = CreateOffsetSlider(powerOffsetXSlider, "Power Text", "PowerText", "OffsetY", -15)
+        local powerOffsetXSlider, updatePowerOffsetX = CreateOffsetSlider(powerAlignV, "Power Text", "PowerText",
+            "OffsetX", -15)
+        local powerOffsetYSlider, updatePowerOffsetY = CreateOffsetSlider(powerOffsetXSlider, "Power Text", "PowerText",
+            "OffsetY", -15)
 
         -- Update function for Fonts section
         UpdateFontsSection = function()
@@ -2254,10 +2292,7 @@ function SetStyleOverride(style, location, value)
     ShowCategorySection("Dimensions")
 end
 
-
-
-
-    -- Profile management buttons
+-- Profile management buttons
 function CreateTab_Profiles()
     local container = TabFrame:CreateTab("Profiles")
 
@@ -2269,7 +2304,8 @@ function CreateTab_Profiles()
     local profileDropdown
     profileDropdown = CreateDropdown(container, 200)
         :SetPoint("LEFT", profileLabel, "RIGHT", 10, 0)
-        :ApplyTooltip("Select which profile to save to or load from.", "Selecting a profile does NOT automatically load it.")
+        :ApplyTooltip("Select which profile to save to or load from.",
+            "Selecting a profile does NOT automatically load it.")
         :SetDynamicOptions(function(addOption, level, args)
             local profiles = PTProfileData.GetProfileList()
             for _, profileName in ipairs(profiles) do
@@ -2288,7 +2324,8 @@ function CreateTab_Profiles()
 
                 PTProfileData.SetCurrentCharacterProfile(selectedProfile)
                 profileDropdown:UpdateText()
-                DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Selected profile: "..selectedProfile.." (click 'Load' to apply)")
+                DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Selected profile: " ..
+                    selectedProfile .. " (click 'Load' to apply)")
             end
         })
         :SetTextUpdater(function(self)
@@ -2324,7 +2361,7 @@ function CreateTab_Profiles()
                         PTProfileData.SaveProfile(profileName, currentData)
                         PopOverlayFrame()
                         dialog:Dispose()
-                        DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Profile '"..profileName.."' created")
+                        DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Profile '" .. profileName .. "' created")
                     end
                 else
                     DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Error: Please enter a profile name")
@@ -2337,7 +2374,7 @@ function CreateTab_Profiles()
                     if PTProfileData.CreateProfile(profileName, "Default") then
                         PopOverlayFrame()
                         dialog:Dispose()
-                        DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Profile '"..profileName.."' created from Default")
+                        DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Profile '" .. profileName .. "' created from Default")
                     end
                 else
                     DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Error: Please enter a profile name")
@@ -2367,14 +2404,14 @@ function CreateTab_Profiles()
             dialog = PTGuiLib.Get("simple_dialog", TabFrame)
                 :SetPoint("CENTER", TabFrame, "CENTER")
                 :SetTitle("Copy Profile")
-                :SetText("Enter a name for the copy of '"..currentProfile.."':")
+                :SetText("Enter a name for the copy of '" .. currentProfile .. "':")
                 :SetHeight(200)
 
             nameEditBox = PTGuiLib.Get("editbox", dialog)
             nameEditBox:SetParent(dialog)
             nameEditBox:SetPoint("TOP", dialog:GetComponent("text"), "BOTTOM", 0, -10)
             nameEditBox:SetSize(200, 20)
-            nameEditBox:SetText(currentProfile.." Copy")
+            nameEditBox:SetText(currentProfile .. " Copy")
 
             local _, firstButton = dialog:AddButton("Copy", function()
                 local newName = nameEditBox:GetText()
@@ -2382,7 +2419,7 @@ function CreateTab_Profiles()
                     if PTProfileData.CopyProfile(currentProfile, newName) then
                         PopOverlayFrame()
                         dialog:Dispose()
-                        DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Profile copied to '"..newName.."'")
+                        DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Profile copied to '" .. newName .. "'")
                     end
                 else
                     DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Error: Please enter a profile name")
@@ -2415,7 +2452,7 @@ function CreateTab_Profiles()
             dialog = PTGuiLib.Get("simple_dialog", TabFrame)
                 :SetPoint("CENTER", TabFrame, "CENTER")
                 :SetTitle("Delete Profile")
-                :SetText("Are you sure you want to delete profile '"..currentProfile.."'?")
+                :SetText("Are you sure you want to delete profile '" .. currentProfile .. "'?")
                 :AddButton("Delete", function()
                     if PTProfileData.DeleteProfile(currentProfile) then
                         -- Switch to Default profile after deleting current
@@ -2429,7 +2466,7 @@ function CreateTab_Profiles()
                         end
                         PopOverlayFrame()
                         dialog:Dispose()
-                        DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Profile '"..currentProfile.."' deleted")
+                        DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Profile '" .. currentProfile .. "' deleted")
                     end
                 end)
                 :AddButton("Cancel", function()
@@ -2457,7 +2494,7 @@ function CreateTab_Profiles()
             dialog = PTGuiLib.Get("simple_dialog", TabFrame)
                 :SetPoint("CENTER", TabFrame, "CENTER")
                 :SetTitle("Rename Profile")
-                :SetText("Enter a new name for '"..currentProfile.."':")
+                :SetText("Enter a new name for '" .. currentProfile .. "':")
                 :SetHeight(200)
 
             nameEditBox = PTGuiLib.Get("editbox", dialog)
@@ -2473,7 +2510,7 @@ function CreateTab_Profiles()
                         profileDropdown:UpdateText()
                         PopOverlayFrame()
                         dialog:Dispose()
-                        DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Profile renamed to '"..newName.."'")
+                        DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Profile renamed to '" .. newName .. "'")
                     end
                 else
                     DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Error: Please enter a profile name")
@@ -2504,7 +2541,9 @@ function CreateTab_Profiles()
 
     local includePositionsCheckbox = CreateCheckbox(container, 20, 20)
         :SetPoint("LEFT", includePositionsLabel, "RIGHT", 5, 0)
-        :ApplyTooltip("When enabled, saving a profile includes frame positions.", "Loading a profile will move frames to the saved positions.", "When disabled, each character keeps its own positions.")
+        :ApplyTooltip("When enabled, saving a profile includes frame positions.",
+            "Loading a profile will move frames to the saved positions.",
+            "When disabled, each character keeps its own positions.")
         :SetChecked(PTOptions.IncludePositionsInProfile and 1 or 0)
         :OnClick(function(self)
             PTOptions.IncludePositionsInProfile = self:GetChecked() == 1
@@ -2523,9 +2562,9 @@ function CreateTab_Profiles()
                 PuppeteerSettings.ApplyFramePositions()
                 RefreshAllFrameGroups()
                 MarkProfileSwitched()
-                DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Loaded profile: "..profileName)
+                DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Loaded profile: " .. profileName)
             else
-                DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Error: Failed to load profile '"..profileName.."'")
+                DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Error: Failed to load profile '" .. profileName .. "'")
             end
         end)
 
@@ -2533,14 +2572,15 @@ function CreateTab_Profiles()
         :SetPoint("LEFT", loadButton, "RIGHT", 10, 0)
         :SetSize(100, 30)
         :SetText("Save")
-        :ApplyTooltip("Save current settings to the selected profile.", "Your settings are already persisted - this saves a profile snapshot.")
+        :ApplyTooltip("Save current settings to the selected profile.",
+            "Your settings are already persisted - this saves a profile snapshot.")
         :SetScript("OnClick", function()
             local profileName = PTProfileData.GetCurrentCharacterProfile()
             local profileData = PTProfileData.GetCurrentProfileData()
             if PTProfileData.SaveProfile(profileName, profileData) then
-                DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Profile settings saved to '"..profileName.."'")
+                DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Profile settings saved to '" .. profileName .. "'")
             else
-                DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Error: Failed to save profile '"..profileName.."'")
+                DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Error: Failed to save profile '" .. profileName .. "'")
             end
         end)
 end
@@ -2548,14 +2588,14 @@ end
 function CreateTab_About()
     local container = TabFrame:CreateTab("About")
 
-    local text = PTGuiLib.GetText(container, 
-            "Puppeteer Version "..Puppeteer.VERSION..
-            "\n\n\nPuppeteer Author: OldManAlpha\nTurtle Nordanaar IGN: Oldmana, Lowall, Jmdruid"..
-            "\n\nHealersMate Original Author: i2ichardt\nEmail: rj299@yahoo.com"..
-            "\n\nAdditional Contributors"..
-            "\nTurtle WoW Community: Answers to addon development questions"..
-            "\nShagu: Utility functions & providing a wealth of research material"..
-            "\nChatGPT: Utility functions"..
+    local text = PTGuiLib.GetText(container,
+            "Puppeteer Version " .. Puppeteer.VERSION ..
+            "\n\n\nPuppeteer Author: OldManAlpha\nTurtle Nordanaar IGN: Oldmana, Lowall, Jmdruid" ..
+            "\n\nHealersMate Original Author: i2ichardt\nEmail: rj299@yahoo.com" ..
+            "\n\nAdditional Contributors" ..
+            "\nTurtle WoW Community: Answers to addon development questions" ..
+            "\nShagu: Utility functions & providing a wealth of research material" ..
+            "\nChatGPT: Utility functions" ..
             "\n\n\nCheck For Updates, Report Issues, Make Suggestions:\n",
             12)
         :SetPoint("TOP", container, "TOP", 0, -80)
@@ -2586,8 +2626,9 @@ function CreateTab_Dimensions()
         :SetFontSize(10)
 
     -- Frame selection dropdown
-    local preferredFrameOrder = {"Party", "Pets", "Raid", "Raid Pets", "Target", "Focus"}
-    local frameDropdown = CreateLabeledDropdown(frameStyleContainer, "Configure Frame", "The frame to edit the dimensions of")
+    local preferredFrameOrder = { "Party", "Pets", "Raid", "Raid Pets", "Target", "Focus" }
+    local frameDropdown = CreateLabeledDropdown(frameStyleContainer, "Configure Frame",
+            "The frame to edit the dimensions of")
         :SetWidth(150)
         :SetPoint("TOP", subtitle, "BOTTOM", 0, -10)
         :SetDynamicOptions(function(addOption, level, args)
@@ -2625,7 +2666,8 @@ function CreateTab_Dimensions()
     end)
 
     -- Health Bar Height slider
-    local healthHeightSlider = CreateLabeledSlider(frameStyleContainer, "Health Bar Height", "The height of the health bar")
+    local healthHeightSlider = CreateLabeledSlider(frameStyleContainer, "Health Bar Height",
+            "The height of the health bar")
         :SetPoint("TOP", widthSlider, "BOTTOM", 0, -15)
         :SetMinMaxValues(5, 100)
         :SetValueStep(1)
@@ -2736,7 +2778,7 @@ function CreateTab_Colors()
         :SetFontSize(10)
 
     -- Frame selection dropdown
-    local preferredFrameOrder = {"Party", "Pets", "Raid", "Raid Pets", "Target", "Focus"}
+    local preferredFrameOrder = { "Party", "Pets", "Raid", "Raid Pets", "Target", "Focus" }
     local frameDropdown = CreateLabeledDropdown(frameStyleContainer, "Configure Frame", "The frame to edit the colors of")
         :SetWidth(150)
         :SetPoint("TOP", subtitle, "BOTTOM", 0, -10)
@@ -2799,55 +2841,56 @@ function CreateTab_Colors()
 
     -- Name Text Color
     local nameColorDropdown = CreateColorDropdown(frameStyleContainer, "Name Text Color", "Color of unit names",
-        function(profile, newValue)
-            if newValue then
-                local selectedFrame = frameDropdown:GetText()
-                local profileName = PuppeteerSettings.GetSelectedProfileName(selectedFrame)
-                SetStyleOverride(profileName, "NameText.Color", newValue)
-            else
-                return profile.NameText.Color or "Class"
-            end
-        end)
+            function(profile, newValue)
+                if newValue then
+                    local selectedFrame = frameDropdown:GetText()
+                    local profileName = PuppeteerSettings.GetSelectedProfileName(selectedFrame)
+                    SetStyleOverride(profileName, "NameText.Color", newValue)
+                else
+                    return profile.NameText.Color or "Class"
+                end
+            end)
         :SetPoint("TOP", frameDropdown, "BOTTOM", 0, -30)
 
     -- Health Text Color
     local healthColorDropdown = CreateColorDropdown(frameStyleContainer, "Health Text Color", "Color of health numbers",
-        function(profile, newValue)
-            if newValue then
-                local selectedFrame = frameDropdown:GetText()
-                local profileName = PuppeteerSettings.GetSelectedProfileName(selectedFrame)
-                SetStyleOverride(profileName, "HealthTexts.Normal.Color", newValue)
-                SetStyleOverride(profileName, "HealthTexts.WithMissing.Color", newValue)
-            else
-                return profile.HealthTexts.Normal.Color or "White"
-            end
-        end)
+            function(profile, newValue)
+                if newValue then
+                    local selectedFrame = frameDropdown:GetText()
+                    local profileName = PuppeteerSettings.GetSelectedProfileName(selectedFrame)
+                    SetStyleOverride(profileName, "HealthTexts.Normal.Color", newValue)
+                    SetStyleOverride(profileName, "HealthTexts.WithMissing.Color", newValue)
+                else
+                    return profile.HealthTexts.Normal.Color or "White"
+                end
+            end)
         :SetPoint("TOP", nameColorDropdown, "BOTTOM", 0, -15)
 
     -- Missing Health Text Color
-    local missingHealthColorDropdown = CreateColorDropdown(frameStyleContainer, "Missing Health Color", "Color of missing health text",
-        function(profile, newValue)
-            if newValue then
-                local selectedFrame = frameDropdown:GetText()
-                local profileName = PuppeteerSettings.GetSelectedProfileName(selectedFrame)
-                SetStyleOverride(profileName, "HealthTexts.Missing.Color", newValue)
-            else
-                return profile.HealthTexts.Missing.Color or "Red"
-            end
-        end)
+    local missingHealthColorDropdown = CreateColorDropdown(frameStyleContainer, "Missing Health Color",
+            "Color of missing health text",
+            function(profile, newValue)
+                if newValue then
+                    local selectedFrame = frameDropdown:GetText()
+                    local profileName = PuppeteerSettings.GetSelectedProfileName(selectedFrame)
+                    SetStyleOverride(profileName, "HealthTexts.Missing.Color", newValue)
+                else
+                    return profile.HealthTexts.Missing.Color or "Red"
+                end
+            end)
         :SetPoint("TOP", healthColorDropdown, "BOTTOM", 0, -15)
 
     -- Power Text Color
     local powerColorDropdown = CreateColorDropdown(frameStyleContainer, "Power Text Color", "Color of power/mana numbers",
-        function(profile, newValue)
-            if newValue then
-                local selectedFrame = frameDropdown:GetText()
-                local profileName = PuppeteerSettings.GetSelectedProfileName(selectedFrame)
-                SetStyleOverride(profileName, "PowerText.Color", newValue)
-            else
-                return profile.PowerText.Color or "White"
-            end
-        end)
+            function(profile, newValue)
+                if newValue then
+                    local selectedFrame = frameDropdown:GetText()
+                    local profileName = PuppeteerSettings.GetSelectedProfileName(selectedFrame)
+                    SetStyleOverride(profileName, "PowerText.Color", newValue)
+                else
+                    return profile.PowerText.Color or "White"
+                end
+            end)
         :SetPoint("TOP", missingHealthColorDropdown, "BOTTOM", 0, -15)
 
     -- Function to update dropdowns when frame changes
@@ -2881,8 +2924,9 @@ function CreateTab_Textures()
         :SetFontSize(10)
 
     -- Frame selection dropdown
-    local preferredFrameOrder = {"Party", "Pets", "Raid", "Raid Pets", "Target", "Focus"}
-    local frameDropdown = CreateLabeledDropdown(frameStyleContainer, "Configure Frame", "The frame to edit the textures of")
+    local preferredFrameOrder = { "Party", "Pets", "Raid", "Raid Pets", "Target", "Focus" }
+    local frameDropdown = CreateLabeledDropdown(frameStyleContainer, "Configure Frame",
+            "The frame to edit the textures of")
         :SetWidth(150)
         :SetPoint("TOP", subtitle, "BOTTOM", 0, -10)
         :SetDynamicOptions(function(addOption, level, args)
@@ -2905,7 +2949,8 @@ function CreateTab_Textures()
         :SetText("Party")
 
     -- Health Bar Texture dropdown
-    local healthBarTextureDropdown = CreateLabeledDropdown(frameStyleContainer, "Health Bar Texture", "Texture for health bars")
+    local healthBarTextureDropdown = CreateLabeledDropdown(frameStyleContainer, "Health Bar Texture",
+            "Texture for health bars")
         :SetWidth(200)
         :SetPoint("TOP", frameDropdown, "BOTTOM", 0, -30)
         :SetDynamicOptions(function(addOption, level, args)
@@ -2936,7 +2981,8 @@ function CreateTab_Textures()
         end)
 
     -- Power Bar Texture dropdown
-    local powerBarTextureDropdown = CreateLabeledDropdown(frameStyleContainer, "Power Bar Texture", "Texture for power bars")
+    local powerBarTextureDropdown = CreateLabeledDropdown(frameStyleContainer, "Power Bar Texture",
+            "Texture for power bars")
         :SetWidth(200)
         :SetPoint("TOP", healthBarTextureDropdown, "BOTTOM", 0, -15)
         :SetDynamicOptions(function(addOption, level, args)
@@ -2978,7 +3024,6 @@ function CreateTab_Textures()
     UpdateTextureDropdowns()
 end
 
-
 -- Factory-related functions
 
 function NewLabeledColumnLayout(container, columns, startY, spacing)
@@ -2993,6 +3038,7 @@ function NewLabeledColumnLayout(container, columns, startY, spacing)
         end
         return "TOPLEFT", container, "TOPLEFT", columns[columnIndex] + offsetX, startY + offsetY
     end
+
     function layout:layoutComponent(component)
         if not self.params.ignoreNext then
             local columnIndex = self.selectedColumn or 1
@@ -3001,29 +3047,35 @@ function NewLabeledColumnLayout(container, columns, startY, spacing)
         end
         util.ClearTable(self.params)
     end
+
     function layout:column(columnIndex)
         self.selectedColumn = columnIndex
         return self
     end
+
     function layout:offset(offsetX, offsetY)
         self.params.offsetX = (self.params.offsetX or 0) + offsetX
         self.params.offsetY = (self.params.offsetY or 0) + offsetY
         return self
     end
+
     function layout:levelAt(columnIndex)
         local lastAdded = self.lastAdded[columnIndex]
         self.lastAdded[self.selectedColumn] = lastAdded
         self:offset(columns[self.selectedColumn] - columns[columnIndex], spacing + lastAdded:GetHeight())
         return self
     end
+
     function layout:setLastAdded(columnIndex, component)
         self.lastAdded[columnIndex] = component
         return self
     end
+
     function layout:ignoreNext()
         self.params.ignoreNext = true
         return self
     end
+
     return layout
 end
 
