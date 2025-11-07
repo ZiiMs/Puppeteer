@@ -39,21 +39,30 @@ function CreateProfile(name, baseName, useDefault)
     return DefaultProfiles[name]
 end
 
+-- Deep merge helper to preserve object methods when applying overrides
+local function DeepMerge(target, source)
+    for k, v in pairs(source) do
+        if type(v) == "table" and type(target[k]) == "table" then
+            -- Both are tables, recursively merge
+            DeepMerge(target[k], v)
+        else
+            -- Simple value or source is table but target isn't, just assign
+            target[k] = v
+        end
+    end
+end
+
 function ApplyOverrides(profileName)
-    local overrides = PTOptions.StyleOverrides[profileName]
+    if not PTGlobalProfiles or not PTGlobalProfiles.StyleOverrides then
+        return
+    end
+    local overrides = PTGlobalProfiles.StyleOverrides[profileName]
     local profile = GetDefaultProfile(profileName)
     if overrides and profile then
         profile = PTUIProfile:New(profile)
         Profiles[profileName] = profile
-        for attribute, value in pairs(overrides) do
-            if type(value) ~= "table" then
-                profile[attribute] = value
-            else
-                for k, v in pairs(value) do
-                    profile[attribute][k] = v
-                end
-            end
-        end
+        -- Deep merge to preserve object methods
+        DeepMerge(profile, overrides)
     end
 end
 
@@ -414,7 +423,10 @@ function InitializeDefaultProfiles()
         profile.BorderStyle = "Hidden"
     end
 
-    for profileName, overrides in pairs(PTOptions.StyleOverrides) do
-        ApplyOverrides(profileName)
+    -- Apply global profile overrides if they exist
+    if PTGlobalProfiles and PTGlobalProfiles.StyleOverrides then
+        for profileName, overrides in pairs(PTGlobalProfiles.StyleOverrides) do
+            ApplyOverrides(profileName)
+        end
     end
 end

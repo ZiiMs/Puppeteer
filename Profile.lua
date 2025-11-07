@@ -99,6 +99,9 @@ function PTUIProfile.SetDefaults()
 
     profile.BarsOffsetY = 0
 
+    -- Global font setting (applies to all text elements)
+    profile.GlobalFont = "Fonts\\FRIZQT__.TTF"
+
     profile.PaddingTop = 0
     profile.PaddingBottom = 20
 
@@ -116,14 +119,16 @@ function PTUIProfile.SetDefaults()
     profile.HealthTexts.Normal = createTextObject({
         ["FontSize"] = 12,
         ["AlignmentV"] = "CENTER",
-        ["AlignmentH"] = "RIGHT"
+        ["AlignmentH"] = "RIGHT",
+        ["Color"] = "White"
     })
     -- Only used when MissingHealthInline is false
     profile.HealthTexts.WithMissing = createTextObject({
         ["FontSize"] = 11,
         ["AlignmentV"] = "TOP",
         ["AlignmentH"] = "RIGHT",
-        ["PaddingV"] = 0
+        ["PaddingV"] = 0,
+        ["Color"] = "White"
     })
     -- Only used when MissingHealthInline is false
     profile.HealthTexts.Missing = createTextObject({
@@ -131,7 +136,7 @@ function PTUIProfile.SetDefaults()
         ["AlignmentV"] = "BOTTOM",
         ["AlignmentH"] = "RIGHT",
         ["PaddingV"] = 0,
-        ["Color"] = {1, 0.4, 0.4}
+        ["Color"] = "Red"
     })
 
     profile.IncomingHealDisplay = "Hidden" -- "Overheal", "Heal", "Hidden"
@@ -140,8 +145,8 @@ function PTUIProfile.SetDefaults()
         ["AlignmentV"] = "BOTTOM",
         ["AlignmentH"] = "RIGHT",
         ["Anchor"] = "Health Bar",
-        ["Color"] = {0.5, 1, 0.5},
-        ["IndirectColor"] = {0.3, 0.8, 0.3},
+        ["Color"] = "Light Green",
+        ["IndirectColor"] = {0.3, 0.8, 0.3}, -- Keep as RGB for now (darker green)
         ["Outline"] = true
     })
 
@@ -153,7 +158,8 @@ function PTUIProfile.SetDefaults()
     profile.PowerText = createTextObject({
         ["FontSize"] = 10,
         ["AlignmentH"] = "RIGHT",
-        ["Anchor"] = "Power Bar"
+        ["Anchor"] = "Power Bar",
+        ["Color"] = "White"
     })
     profile.PowerDisplay = "Power" -- "Power", "Power/Max Power", "% Power", "Hidden"
 

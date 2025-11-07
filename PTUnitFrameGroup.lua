@@ -65,7 +65,7 @@ function PTUnitFrameGroup:ShowCondition()
         return false
     end
 
-    if PTOptions.HideWhileSolo and (GetNumPartyMembers() == 0 and GetNumRaidMembers() == 0) then
+    if not Puppeteer.TestUI and PTOptions.HideWhileSolo and (GetNumPartyMembers() == 0 and GetNumRaidMembers() == 0) then
         return false
     end
 
@@ -207,6 +207,8 @@ function PTUnitFrameGroup:Initialize()
             container:StopMovingOrSizing()
             self:ApplyToplevel()
             util.ConvertAnchor(container, PuppeteerSettings.GetFramePosition(self.name))
+            -- Save position after moving
+            PuppeteerSettings.SaveFramePositions()
             return
         end
 
@@ -222,6 +224,8 @@ function PTUnitFrameGroup:Initialize()
         -- Prevent container from potentially blocking mouse by setting it back to 0 size
         moveContainer:SetWidth(0)
         moveContainer:SetHeight(0)
+        -- Save positions after moving all groups
+        PuppeteerSettings.SaveFramePositions()
     end)
 
     container:SetScript("OnHide", function()
@@ -247,7 +251,7 @@ function PTUnitFrameGroup:Initialize()
 
     local borderFrame = CreateFrame("Frame", "$parentBorder", container)
     self.borderFrame = borderFrame
-    borderFrame:SetPoint("CENTER", container, 0, 0)
+    self.borderFrame:SetPoint("CENTER", container, 0, 0)
 
     self:ApplyProfile()
 

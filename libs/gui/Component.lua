@@ -361,7 +361,8 @@ local function ShowTooltip(attachTo, texts)
             text = PTUtil.Colorize(text, 1.0, 0.88, 0.3)
         end
         infoTooltip:AddLine(text)
-        _G["PTGuiInfoTooltipTextLeft"..i]:SetFont("Fonts\\FRIZQT__.TTF", i == 1 and 14 or 12, "OUTLINE")
+        local globalFont = (PTGlobalOptions and PTGlobalOptions.GlobalFont) or "Fonts\\FRIZQT__.TTF"
+        _G["PTGuiInfoTooltipTextLeft"..i]:SetFont(globalFont, i == 1 and 14 or 12, "OUTLINE")
     end
     
     infoTooltip:Show()

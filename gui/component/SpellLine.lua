@@ -140,7 +140,8 @@ function PTSpellLine:New()
     t:ClearAllPoints()
     t:SetPoint("CENTER", dropdown:GetHandle(), "CENTER")
     t:SetJustifyH("CENTER")
-    t:SetFont("Fonts\\FRIZQT__.TTF", 12, "OUTLINE")
+    local globalFont = (PTGlobalOptions and PTGlobalOptions.GlobalFont) or "Fonts\\FRIZQT__.TTF"
+    t:SetFont(globalFont, 12, "OUTLINE")
     local button = PTGuiLib.Get("button", frame)
     for _, f in ipairs({editbox, dropdown, button}) do
         f:SetPoint("LEFT", typeDropdown, "RIGHT", 5, 0)

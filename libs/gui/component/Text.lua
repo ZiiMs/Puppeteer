@@ -7,7 +7,8 @@ function PTGuiText:New()
     local container = PTGuiLib.Get("container")
     obj:AddComponent("container", container)
     obj:SetHandle(container:GetHandle():CreateFontString(nil, "MEDIUM", "GameFontNormal"))
-    obj:SetFont("Fonts\\FRIZQT__.TTF", 12)
+    local globalFont = (PTGlobalOptions and PTGlobalOptions.GlobalFont) or "Fonts\\FRIZQT__.TTF"
+    obj:SetFont(globalFont, 12)
     container:GetHandle():SetAllPoints(obj:GetHandle())
     return obj
 end
@@ -20,7 +21,8 @@ function PTGuiText:OnDispose()
     self.super.OnDispose(self)
 
     self:SetText("")
-    self:SetFont("Fonts\\FRIZQT__.TTF", 12)
+    local globalFont = (PTGlobalOptions and PTGlobalOptions.GlobalFont) or "Fonts\\FRIZQT__.TTF"
+    self:SetFont(globalFont, 12)
     self:SetJustifyH("CENTER")
     self:SetJustifyV("MIDDLE")
     self:SetNonSpaceWrap(false)

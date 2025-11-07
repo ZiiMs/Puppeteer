@@ -5,6 +5,8 @@ PTGuiLib = {}
 PTUtil.SetEnvironment(PTGuiLib)
 local getn = table.getn
 
+COMPONENTS_PATH = "libs/gui/component/"
+
 ComponentRegistry = {}
 ComponentPool = {}
 

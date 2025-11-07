@@ -288,6 +288,10 @@ function PTUnitFrame:UpdateOutline()
 end
 
 function PTUnitFrame:SetOutlineColor(r, g, b)
+    if not self.targetOutline then
+        return
+    end
+
     if r then
         self.targetOutline:Show()
         self.targetOutline:SetBackdropBorderColor(r, g, b, 0.75)
@@ -436,8 +440,9 @@ end
 -- "Default" - Does not color the text
 -- Array RGB - Colors the text as the RGB values
 function PTUnitFrame:ColorizeText(inputText, color)
-    if color == "Class" then
-        local r, g, b = util.GetClassColor(self:GetClass())
+    -- Support new color palette system
+    if type(color) == "string" then
+        local r, g, b, isClassColor = Puppeteer.GetColorFromPalette(color, self.unit)
         return util.Colorize(inputText, r, g, b)
     elseif type(color) == "table" then
         return util.Colorize(inputText, color)
@@ -518,6 +523,11 @@ function PTUnitFrame:UpdateHealth()
     local healthText = self.healthText
     local missingHealthText = self.missingHealthText
 
+    -- Safety check - if UI elements don't exist, exit early
+    if not healthText or not missingHealthText then
+        return
+    end
+
     -- Set Health Status
     if currentHealth <= 0 then -- Unit Dead
         local cache = self:GetCache()
@@ -563,7 +573,16 @@ function PTUnitFrame:UpdateHealth()
         elseif profile.HealthDisplay == "% Health" then
             text = math.floor((currentHealth / maxHealth) * 100).."%"
         end
-        
+
+        -- Apply health text color from profile settings
+        if text ~= "" then
+            local healthTextProps = (self:ShouldShowMissingHealth() and not profile.MissingHealthInline) and
+                profile.HealthTexts.WithMissing or profile.HealthTexts.Normal
+            if healthTextProps and healthTextProps.Color then
+                text = self:ColorizeText(text, healthTextProps.Color)
+            end
+        end
+
         if profile.ShowDebuffColorsOn == "Health" then
             local r, g, b = self:GetDebuffColor()
             if r then
@@ -638,11 +657,13 @@ function PTUnitFrame:SetHealthBarValue(value)
         if profile.IncomingHealDisplay == "Overheal" then
             if healthIncMaxRatio > 1 then
                 incomingHealText:SetText("+"..math.ceil(self:GetCurrentHealth() + incomingHealing - self:GetMaxHealth()))
-                local rgb = incomingDirectHealing > 0 and profile.IncomingHealText.Color or 
+                local rgb = incomingDirectHealing > 0 and profile.IncomingHealText.Color or
                     profile.IncomingHealText.IndirectColor
-                if incomingDirectHealing > 0 then
-                    incomingHealText:SetTextColor(rgb[1], rgb[2], rgb[3])
-                else
+                -- Handle color palette strings
+                if type(rgb) == "string" then
+                    local r, g, b = Puppeteer.GetColorFromPalette(rgb, self.unit)
+                    incomingHealText:SetTextColor(r, g, b)
+                elseif type(rgb) == "table" then
                     incomingHealText:SetTextColor(rgb[1], rgb[2], rgb[3])
                 end
             else
@@ -650,11 +671,13 @@ function PTUnitFrame:SetHealthBarValue(value)
             end
         elseif profile.IncomingHealDisplay == "Heal" then
             incomingHealText:SetText("+"..math.ceil(incomingHealing))
-            local rgb = incomingDirectHealing > 0 and profile.IncomingHealText.Color or 
+            local rgb = incomingDirectHealing > 0 and profile.IncomingHealText.Color or
                     profile.IncomingHealText.IndirectColor
-            if incomingDirectHealing > 0 then
-                incomingHealText:SetTextColor(rgb[1], rgb[2], rgb[3])
-            else
+            -- Handle color palette strings
+            if type(rgb) == "string" then
+                local r, g, b = Puppeteer.GetColorFromPalette(rgb, self.unit)
+                incomingHealText:SetTextColor(r, g, b)
+            elseif type(rgb) == "table" then
                 incomingHealText:SetTextColor(rgb[1], rgb[2], rgb[3])
             end
         else
@@ -1176,14 +1199,14 @@ function PTUnitFrame:Initialize()
 
     local distanceText = overlayContainer:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     self.distanceText = distanceText
-    distanceText:SetAlpha(profile.RangeText:GetAlpha())
+    distanceText:SetAlpha((profile.RangeText and profile.RangeText.GetAlpha and profile.RangeText:GetAlpha()) or 1)
 
     local losFrame = CreateFrame("Frame", nil, container)
     losFrame:SetFrameLevel(container:GetFrameLevel() + 3)
     local losIcon = losFrame:CreateTexture(nil, "OVERLAY")
     self.lineOfSightIcon = {frame = losFrame, icon = losIcon}
     losIcon:SetTexture("Interface\\Icons\\Spell_nature_sleep")
-    losIcon:SetAlpha(profile.LineOfSightIcon:GetAlpha())
+    losIcon:SetAlpha((profile.LineOfSightIcon and profile.LineOfSightIcon.GetAlpha and profile.LineOfSightIcon:GetAlpha()) or 1)
     losFrame:Hide()
 
     -- Role Icon
@@ -1192,7 +1215,7 @@ function PTUnitFrame:Initialize()
     roleFrame:SetFrameLevel(container:GetFrameLevel() + 3)
     local roleIcon = roleFrame:CreateTexture(nil, "OVERLAY")
     self.roleIcon = {frame = roleFrame, icon = roleIcon}
-    roleIcon:SetAlpha(profile.RoleIcon:GetAlpha())
+    roleIcon:SetAlpha((profile.RoleIcon and profile.RoleIcon.GetAlpha and profile.RoleIcon:GetAlpha()) or 1)
     roleFrame:Hide()
 
     -- Raid Mark Icon
@@ -1201,7 +1224,7 @@ function PTUnitFrame:Initialize()
     raidMarkFrame:SetFrameLevel(container:GetFrameLevel() + 3)
     local raidMarkIcon = raidMarkFrame:CreateTexture(nil, "OVERLAY")
     self.raidMarkIcon = {frame = raidMarkFrame, icon = raidMarkIcon}
-    raidMarkIcon:SetAlpha(profile.RaidMarkIcon:GetAlpha())
+    raidMarkIcon:SetAlpha((profile.RaidMarkIcon and profile.RaidMarkIcon.GetAlpha and profile.RaidMarkIcon:GetAlpha()) or 1)
     raidMarkIcon:SetTexture("Interface\\TARGETINGFRAME\\UI-RaidTargetingIcons")
     raidMarkFrame:Hide()
 
@@ -1211,7 +1234,7 @@ function PTUnitFrame:Initialize()
     pvpFrame:SetFrameLevel(container:GetFrameLevel() + 4)
     local pvpIcon = pvpFrame:CreateTexture(nil, "OVERLAY")
     self.pvpIcon = {frame = pvpFrame, icon = pvpIcon}
-    pvpIcon:SetAlpha(profile.PVPIcon:GetAlpha())
+    pvpIcon:SetAlpha((profile.PVPIcon and profile.PVPIcon.GetAlpha and profile.PVPIcon:GetAlpha()) or 1)
     pvpIcon:SetTexture("Interface\\TargetingFrame\\UI-PVP-Alliance")
     pvpIcon:SetTexCoord(3 / 64, 39 / 64, 2 / 64, 38 / 64)
     pvpFrame:Hide()
@@ -1220,12 +1243,12 @@ function PTUnitFrame:Initialize()
 
     local healthBar = CreateFrame("StatusBar", "$parentHealthBar", container)
     self.healthBar = healthBar
-    healthBar:SetStatusBarTexture(PT.BarStyles[profile.HealthBarStyle])
+    healthBar:SetStatusBarTexture(PT.BarStyles[profile.HealthBarStyle] or PT.BarStyles["Puppeteer"])
     healthBar:SetMinMaxValues(0, 1)
 
     local incomingHealthBar = CreateFrame("StatusBar", "$parentIncomingHealthBar", container)
     self.incomingHealthBar = incomingHealthBar
-    incomingHealthBar:SetStatusBarTexture(PT.BarStyles[profile.HealthBarStyle])
+    incomingHealthBar:SetStatusBarTexture(PT.BarStyles[profile.HealthBarStyle] or PT.BarStyles["Puppeteer"])
     incomingHealthBar:SetMinMaxValues(0, 1)
     incomingHealthBar:SetFrameLevel(healthBar:GetFrameLevel() - 1)
 
@@ -1239,7 +1262,7 @@ function PTUnitFrame:Initialize()
 
     local name = healthBar:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     self.nameText = name
-    name:SetAlpha(profile.NameText:GetAlpha())
+    name:SetAlpha((profile.NameText and profile.NameText.GetAlpha and profile.NameText:GetAlpha()) or 1)
 
     local bg = container:CreateTexture(nil, "BACKGROUND")
     healthBar.background = bg
@@ -1254,20 +1277,20 @@ function PTUnitFrame:Initialize()
 
     local missingHealthText = healthBar:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     self.missingHealthText = missingHealthText
-    missingHealthText:SetAlpha(profile.HealthTexts.Missing:GetAlpha())
+    missingHealthText:SetAlpha((profile.HealthTexts and profile.HealthTexts.Missing and profile.HealthTexts.Missing.GetAlpha and profile.HealthTexts.Missing:GetAlpha()) or 1)
 
     -- Power Bar Element
 
     local powerBar = CreateFrame("StatusBar", "$parentPowerStatusBar", container)
     self.powerBar = powerBar
-    powerBar:SetStatusBarTexture(PT.BarStyles[profile.PowerBarStyle])
+    powerBar:SetStatusBarTexture(PT.BarStyles[profile.PowerBarStyle] or PT.BarStyles["Puppeteer"])
     powerBar:SetMinMaxValues(0, 1)
     powerBar:SetValue(1)
     powerBar:SetStatusBarColor(0, 0, 1)
     powerBar:SetBackdrop({bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background"})
     local powerText = powerBar:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     self.powerText = powerText
-    powerText:SetAlpha(profile.PowerText:GetAlpha())
+    powerText:SetAlpha((profile.PowerText and profile.PowerText.GetAlpha and profile.PowerText:GetAlpha()) or 1)
 
     -- Button Element
 
@@ -1492,26 +1515,52 @@ local alignmentAnchorMap = {
     }
 }
 function PTUnitFrame:UpdateComponent(component, props, xOffset, yOffset)
+    if not props or not props.GetAnchorComponent then
+        return
+    end
+
     xOffset = xOffset or 0
     yOffset = yOffset or 0
 
     local anchor = props:GetAnchorComponent(self)
+    if not anchor then
+        return
+    end
 
     component:ClearAllPoints()
     if component.SetFont then -- Must be a FontString
         component:SetWidth(math.min(props.MaxWidth, anchor:GetWidth()))
         component:SetHeight(props.FontSize * 1.25)
-        component:SetFont("Fonts\\FRIZQT__.TTF", props.FontSize, props.Outline and "OUTLINE" or nil)
-        if props.Outline then
+        local globalFont = (PTGlobalOptions and PTGlobalOptions.GlobalFont) or "Fonts\\FRIZQT__.TTF"
+        -- Use per-text Outline setting if specified, otherwise use global font flags
+        local fontFlags = props.Outline and "OUTLINE" or (PTGlobalOptions and PTGlobalOptions.GlobalFontFlags) or nil
+        component:SetFont(globalFont, props.FontSize, fontFlags)
+        if props.Outline or (fontFlags and fontFlags ~= "") then
             component:SetShadowOffset(0, 0)
         end
         component:SetJustifyH(props.AlignmentH)
         component:SetJustifyV(props.AlignmentV)
     else
+        if not props.GetWidth or not props.GetHeight then
+            return
+        end
         component:SetWidth(props:GetWidth(self))
         component:SetHeight(props:GetHeight(self))
     end
+
+    if not props.AlignmentH or not props.AlignmentV or not alignmentAnchorMap[props.AlignmentH] then
+        return
+    end
+
     local alignment = alignmentAnchorMap[props.AlignmentH][props.AlignmentV]
+    if not alignment then
+        return
+    end
+
+    if not props.GetOffsetX or not props.GetOffsetY then
+        return
+    end
+
     component:SetPoint(alignment, anchor, alignment, props:GetOffsetX() + xOffset, props:GetOffsetY() + yOffset)
 end
 

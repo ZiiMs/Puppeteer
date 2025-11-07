@@ -83,7 +83,8 @@ do
     text:SetWidth(manaBar:GetWidth())
     text:SetHeight(manaBar:GetHeight())
     text:SetPoint("CENTER", manaBar, "CENTER")
-    text:SetFont("Fonts\\FRIZQT__.TTF", 9, "OUTLINE")
+    local globalFont = (PTGlobalOptions and PTGlobalOptions.GlobalFont) or "Fonts\\FRIZQT__.TTF"
+    text:SetFont(globalFont, 9, "OUTLINE")
     text:SetShadowOffset(0, 0)
     text:SetJustifyH("CENTER")
     text:SetJustifyV("CENTER")

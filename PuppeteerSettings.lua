@@ -82,15 +82,16 @@ function SetDefaults()
     if not PTGlobalOptions then
         _G.PTGlobalOptions = {}
     end
-    
-    local OPTIONS_VERSION = 3
+
+
+    local OPTIONS_VERSION = 4
 
     if PTOptions.OptionsVersion and (PTOptions.OptionsVersion > OPTIONS_VERSION) then
         LetsCrashOut()
     end
 
-    if PTGlobalOptions.OptionsVersion and (PTGlobalOptions.OptionsVersion > OPTIONS_VERSION) then
-        LetsCrashOut()
+    if not PTGlobalProfiles.StyleOverrides then
+        PTGlobalProfiles.StyleOverrides = {}
     end
 
     local isHealer = util.IsHealerClass("player")
@@ -159,7 +160,6 @@ function SetDefaults()
                 ["Target"] = "Long",
                 ["Focus"] = "Default"
             },
-            ["StyleOverrides"] = {},
             ["FrameOptions"] = {},
             ["Scripts"] = {
                 ["OnLoad"] = "",
@@ -293,6 +293,8 @@ function SetDefaults()
     do
         local defaults = {
             ["ShowLoadMessage"] = true,
+            ["GlobalFont"] = "Fonts\\FRIZQT__.TTF",
+            ["GlobalFontFlags"] = nil, -- nil, "OUTLINE", "THICKOUTLINE", "MONOCHROME"
             ["Experiments"] = {
                 ["AutoRole"] = false
             },
@@ -332,8 +334,9 @@ function GetOption(location)
 end
 
 function SetOption(location, value)
-    local optionTable, location = TraverseOptions(location)
-    optionTable[location] = value
+    -- Directly update PTOptions - it will auto-save on logout
+    local optionTable, finalKey = TraverseOptions(location)
+    optionTable[finalKey] = value
 end
 
 -- Buffs/debuffs that significantly modify healing
@@ -484,6 +487,7 @@ end
 
 function SetFrameHidden(frameName, hidden)
     validateFrameOptionsExistence(frameName)
+    -- Directly update PTOptions - it will auto-save on logout
     PTOptions.FrameOptions[frameName].Hidden = hidden
     PTSettingsGui.UpdateFrameOptions()
 end
@@ -494,7 +498,14 @@ end
 
 function SetFrameLocked(frameName, locked)
     validateFrameOptionsExistence(frameName)
-    PTOptions.FrameOptions[frameName].Locked = locked
+
+    -- Use dirty tracker if available to update both working copy and live options
+    if PTDirtyTracker then
+        PTDirtyTracker.SetFrameOption(frameName, "Locked", locked)
+    else
+        PTOptions.FrameOptions[frameName].Locked = locked
+    end
+
     local group = Puppeteer.UnitFrameGroups[frameName]
     if group then
         group:UpdateHeaderColor()
@@ -508,7 +519,14 @@ end
 
 function SetTitleHidden(frameName, hidden)
     validateFrameOptionsExistence(frameName)
-    PTOptions.FrameOptions[frameName].TitleHidden = hidden
+
+    -- Use dirty tracker if available to update both working copy and live options
+    if PTDirtyTracker then
+        PTDirtyTracker.SetFrameOption(frameName, "TitleHidden", hidden)
+    else
+        PTOptions.FrameOptions[frameName].TitleHidden = hidden
+    end
+
     local group = Puppeteer.UnitFrameGroups[frameName]
     if group then
         group:UpdateUIPositions()
@@ -525,10 +543,18 @@ end
 
 function SaveFramePositions()
     for frameName, group in pairs(Puppeteer.UnitFrameGroups) do
-        if not PTOptions.FrameOptions[frameName] then
-            PTOptions.FrameOptions[frameName] = {}
-        end
         local anchor, _, _, x, y = group:GetContainer():GetPoint(1)
-        PTOptions.FrameOptions[frameName].Position = {anchor, x, y}
+        local position = {anchor, x, y}
+
+        -- Use dirty tracker if available to update both working copy and live options
+        if PTDirtyTracker then
+            PTDirtyTracker.SetFrameOption(frameName, "Position", position)
+        else
+            -- Fallback to direct update if dirty tracker not available
+            if not PTOptions.FrameOptions[frameName] then
+                PTOptions.FrameOptions[frameName] = {}
+            end
+            PTOptions.FrameOptions[frameName].Position = position
+        end
     end
 end

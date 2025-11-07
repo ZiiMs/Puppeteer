@@ -5,6 +5,29 @@ _G.PuppeteerLib = AceLibrary("AceAddon-2.0"):new("AceEvent-2.0")
 
 VERSION = GetAddOnMetadata("Puppeteer", "version")
 
+-- Enhanced error handler for better debugging
+local function ErrorHandler(err)
+    local stack = debugstack(2)
+    DEFAULT_CHAT_FRAME:AddMessage("|cffff0000[Puppeteer Error]|r " .. tostring(err))
+    DEFAULT_CHAT_FRAME:AddMessage("|cffff8800Stack trace:|r")
+    for line in string.gfind(stack, "[^\n]+") do
+        DEFAULT_CHAT_FRAME:AddMessage("|cffcccccc" .. line .. "|r")
+    end
+    return err
+end
+
+-- Wrap functions to catch errors with better stack traces
+local function SafeCall(func, ...)
+    local success, err = pcall(func, unpack(arg))
+    if not success then
+        ErrorHandler(err)
+    end
+    return success, err
+end
+
+_G.PuppeteerErrorHandler = ErrorHandler
+_G.PuppeteerSafeCall = SafeCall
+
 TestUI = false
 
 Banzai = AceLibrary("Banzai-1.0")
@@ -47,6 +70,14 @@ BarStyles = {
     ["Puppeteer Borderless"] = ptBarsPath.."Puppeteer-Borderless",
     ["Puppeteer Shineless"] = ptBarsPath.."Puppeteer-Shineless",
     ["Puppeteer Shineless Borderless"] = ptBarsPath.."Puppeteer-Shineless-Borderless"
+}
+
+-- Available fonts for global font selection
+AvailableFonts = {
+    ["FRIZQT (Default)"] = "Fonts\\FRIZQT__.TTF",
+    ["Arial Narrow"] = "Fonts\\ARIALN.TTF",
+    ["Morpheus"] = "Fonts\\MORPHEUS.TTF",
+    ["Skurri"] = "Fonts\\skurri.TTF"
 }
 
 GameTooltip = CreateFrame("GameTooltip", "PTGameTooltip", UIParent, "GameTooltipTemplate")
@@ -220,15 +251,145 @@ local function initUnitFrames()
     OpenUnitFramesIterator()
 end
 
+-- Detect if pfUI addon is loaded
+function DetectpfUI()
+    return IsAddOnLoaded("pfUI")
+end
+
+-- Load pfUI bar textures into BarStyles table
+function LoadpfUIBarTextures()
+    if not DetectpfUI() then
+        return
+    end
+
+    -- pfUI bar texture paths (only actual textures from pfUI)
+    local pfUIBarTextures = {
+        ["pfUI Bar"] = "Interface\\AddOns\\pfUI\\img\\bar",
+        ["pfUI ElvUI"] = "Interface\\AddOns\\pfUI\\img\\bar_elvui",
+        ["pfUI Gradient"] = "Interface\\AddOns\\pfUI\\img\\bar_gradient",
+        ["pfUI TukUI"] = "Interface\\AddOns\\pfUI\\img\\bar_tukui"
+    }
+
+    -- Add pfUI textures to BarStyles table
+    for name, path in pairs(pfUIBarTextures) do
+        BarStyles[name] = path
+    end
+
+    DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Loaded pfUI bar textures")
+end
+
+-- Load pfUI fonts into AvailableFonts table
+function LoadpfUIFonts()
+    if not DetectpfUI() then
+        return
+    end
+
+    -- pfUI font paths (most common ones)
+    local pfUIFonts = {
+        ["pfUI Arial"] = "Interface\\AddOns\\pfUI\\fonts\\arial.ttf",
+        ["pfUI Continuum"] = "Interface\\AddOns\\pfUI\\fonts\\continuum.ttf",
+        ["pfUI Expressway"] = "Interface\\AddOns\\pfUI\\fonts\\expressway.ttf",
+        ["pfUI Homespun"] = "Interface\\AddOns\\pfUI\\fonts\\homespun.ttf",
+        ["pfUI PT Sans Narrow"] = "Interface\\AddOns\\pfUI\\fonts\\ptsansnarrow.ttf",
+        ["pfUI Ubuntu"] = "Interface\\AddOns\\pfUI\\fonts\\ubuntu.ttf",
+        ["pfUI Visitor"] = "Interface\\AddOns\\pfUI\\fonts\\visitor.ttf"
+    }
+
+    -- Add pfUI fonts to AvailableFonts table
+    for name, path in pairs(pfUIFonts) do
+        AvailableFonts[name] = path
+    end
+
+    DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Loaded pfUI fonts")
+end
+
 function OnAddonLoaded()
     PuppeteerSettings.SetDefaults()
 
-    if PTBindings == nil then
+    -- Load pfUI assets if pfUI is installed
+    LoadpfUIBarTextures()
+    LoadpfUIFonts()
+
+    -- Initialize global profiles if needed
+    if PTGlobalProfiles == nil then
+        PTGlobalProfiles = {}
+    end
+    if PTGlobalProfiles.StyleOverrides == nil then
+        PTGlobalProfiles.StyleOverrides = {}
+    end
+    if PTGlobalProfiles.CustomProfiles == nil then
+        PTGlobalProfiles.CustomProfiles = {}
+    end
+
+    -- Migrate existing character-specific StyleOverrides to global storage (one-time migration)
+    if PTOptions.StyleOverrides and not PTGlobalProfiles.Migrated then
+        -- Copy existing character StyleOverrides to global storage
+        for profileName, overrides in pairs(PTOptions.StyleOverrides) do
+            if not PTGlobalProfiles.StyleOverrides[profileName] then
+                PTGlobalProfiles.StyleOverrides[profileName] = {}
+            end
+            -- Deep copy the overrides
+            for key, value in pairs(overrides) do
+                PTGlobalProfiles.StyleOverrides[profileName][key] = value
+            end
+        end
+        PTGlobalProfiles.Migrated = true
+        DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Migrated profile customizations to global storage")
+    end
+
+    -- Clear old character-specific StyleOverrides (no longer needed)
+    if PTOptions.StyleOverrides then
+        PTOptions.StyleOverrides = nil
+    end
+
+    -- Initialize PTBindings before profile system (profile system may read from it)
+    if PTBindings == nil or PTBindings.Loadouts == nil then
         GenerateDefaultBindings()
     end
 
     InitOverrideBindingsMapping()
     InitBindingDisplayCache()
+
+    -- Initialize new profile system with error handling
+    local success, err = pcall(function()
+        if PTGlobalProfilesData == nil then
+            _G.PTGlobalProfilesData = {}
+        end
+        if PTCharacterProfile == nil then
+            _G.PTCharacterProfile = {}
+        end
+
+        -- Migration: Create "Default" profile from existing settings if it doesn't exist
+        if not PTProfileData.ProfileExists("Default") then
+            -- This is either a first-time user or an upgrade from the old system
+            -- Create Default profile from current settings
+            local currentData = PTProfileData.GetCurrentProfileData()
+            PTProfileData.SaveProfile("Default", currentData)
+            DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Created Default profile from current settings")
+        end
+
+        -- Set default profile selection if not set
+        local selectedProfile = PTProfileData.GetCurrentCharacterProfile()
+        if not PTProfileData.ProfileExists(selectedProfile) then
+            -- Profile doesn't exist, default to "Default"
+            selectedProfile = "Default"
+            PTProfileData.SetCurrentCharacterProfile(selectedProfile)
+        end
+
+        -- Note: Profiles are NOT auto-loaded on init
+        -- Settings will load from SavedVariablesPerCharacter (PTOptions) naturally
+        -- Users can explicitly load profiles via the "Load" button in settings UI
+    end)
+
+    if not success then
+        DEFAULT_CHAT_FRAME:AddMessage("|cffff0000[Puppeteer] Error initializing profile system:|r")
+        DEFAULT_CHAT_FRAME:AddMessage("|cffff0000" .. tostring(err) .. "|r")
+        DEFAULT_CHAT_FRAME:AddMessage("|cffff8800Stack trace:|r")
+        local stack = debugstack(2)
+        for line in string.gfind(stack, "[^\n]+") do
+            DEFAULT_CHAT_FRAME:AddMessage("|cffcccccc" .. line .. "|r")
+        end
+    end
 
     if util.IsSuperWowPresent() then
         -- In case other addons override unit functions, we want to make sure we're using their functions
@@ -736,16 +897,18 @@ function CheckGroup()
         GuidRoster.PopulateRoster()
         PTUnit.UpdateGuidCaches()
     end
-    for _, unit in ipairs(util.AllRealUnits) do
-        local exists, guid = UnitExists(unit)
-        if unit ~= "target" then
-            if exists then
-                for ui in UnitFrames(unit) do
-                    ui:Show()
-                end
-            else
-                for ui in UnitFrames(unit) do
-                    ui:Hide()
+    if not TestUI then
+        for _, unit in ipairs(util.AllRealUnits) do
+            local exists, guid = UnitExists(unit)
+            if unit ~= "target" then
+                if exists then
+                    for ui in UnitFrames(unit) do
+                        ui:Show()
+                    end
+                else
+                    for ui in UnitFrames(unit) do
+                        ui:Hide()
+                    end
                 end
             end
         end
@@ -792,7 +955,9 @@ function CheckTarget()
             ui:UpdateIncomingHealing()
         end
     end
-    UnitFrameGroups["Target"]:EvaluateShown()
+    if UnitFrameGroups["Target"] then
+        UnitFrameGroups["Target"]:EvaluateShown()
+    end
 end
 
 function IsRelevantUnit(unit)

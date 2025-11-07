@@ -3,7 +3,7 @@
 ## Title: Puppeteer
 ## Notes: Unit frames addon tailored for healers
 ## Author: OldManAlpha, Richard Truax(i2ichardt)
-## SavedVariables: PTGlobalOptions, PTHealCache, PTPlayerHealCache, PTRoleCache
+## SavedVariables: PTGlobalOptions, PTHealCache, PTPlayerHealCache, PTRoleCache, PTGlobalProfiles, PTGlobalProfilesData, PTCharacterProfile
 ## SavedVariablesPerCharacter: PTBindings, PTOptions
 
 libs\ace\AceLibrary\AceLibrary.lua
@@ -48,6 +48,12 @@ libs\gui\component\ColorSelect.lua
 libs\gui\frame\TabFrame.lua
 libs\gui\frame\SimpleDialog.lua
 
+libs\GuidRoster.lua
+libs\AuraTracker.lua
+libs\PTUnit.lua
+libs\ShaguUtil.lua
+libs\HealPredict.lua
+
 Puppeteer.lua
 core\SpellsTooltip.lua
 core\EventHandler.lua
@@ -58,11 +64,14 @@ core\Bindings.lua
 core\ActionBindings.lua
 core\Roles.lua
 
+ColorPalette.lua
 PuppeteerSettings.lua
 PTUnitFrame.lua
 PTUnitFrameGroup.lua
 Profile.lua
 ProfileManager.lua
+ProfileData.lua
+gui\Settings.lua
 
 gui\GuiUtil.lua
 gui\component\SpellLine.lua
@@ -74,7 +83,6 @@ gui\component\BindingOptions.lua
 gui\component\ButtonEditor.lua
 gui\component\NewLoadout.lua
 gui\component\LoadScriptEditor.lua
-gui\Settings.lua
 
 libs\GuidRoster.lua
 libs\AuraTracker.lua
