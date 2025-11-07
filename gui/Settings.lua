@@ -1007,6 +1007,10 @@ function CreateTab_Customize()
     -- Track current category
     local currentCategory = "Dimensions"
 
+    -- Forward declare fontDropdown and fontStyleDropdown for broader scope
+    local fontDropdown
+    local fontStyleDropdown
+
     -- Create sections for each category (initially all hidden except Dimensions)
     local dimensionsSection = PTGuiLib.Get("container", categoryContainer)
     local colorsSection = PTGuiLib.Get("container", categoryContainer)
@@ -1712,7 +1716,6 @@ function CreateTab_Customize()
             :SetFontSize(10)
 
         -- Font dropdown
-        local fontDropdown
         fontDropdown = CreateLabeledDropdown(section, "Font Family", "The font used for all text")
             :SetWidth(200)
             :SetPoint("TOP", fontSubtitle, "BOTTOM", 0, -15)
@@ -1746,7 +1749,6 @@ function CreateTab_Customize()
             end)
 
         -- Font style dropdown
-        local fontStyleDropdown
         fontStyleDropdown = CreateLabeledDropdown(section, "Font Style", "Text rendering style")
             :SetWidth(200)
             :SetPoint("TOP", fontDropdown, "BOTTOM", 0, -15)
