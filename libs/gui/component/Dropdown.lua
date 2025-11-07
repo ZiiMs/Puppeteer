@@ -153,6 +153,14 @@ function PTGuiDropdown:SetParent(obj)
     self.super.SetParent(self, obj)
 end
 
+function PTGuiDropdown:OnAcquire()
+    self.super.OnAcquire(self)
+    -- Re-establish TextUpdater if options are already set (meaning it's a recycled component)
+    if self.Options and self.TextUpdater then
+        self:SetTextUpdater(self.TextUpdater, true) -- Pass true to prevent immediate update
+    end
+end
+
 function PTGuiDropdown:OnDispose()
     self:SetToggleState(false)
     self:SetShowShadow(true)
