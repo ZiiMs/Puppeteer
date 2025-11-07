@@ -1071,6 +1071,8 @@ function CreateTab_Customize()
                                                              end          -- Update scroll area to fit the new content
           if categoryContainer then
               categoryContainer:UpdateScrollChildRect()
+              categoryContainer:Hide() -- Force redraw of the parent container
+              categoryContainer:Show()
           end
           if categoryDropdown then
               categoryDropdown:UpdateText()
