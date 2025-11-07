@@ -368,7 +368,7 @@ function CreateTab_Bindings()
     
 
     local addButton = PTGuiLib.Get("button", container)
-        :SetPoint("TOP", container, "TOP", 0, -440)
+        :SetPoint("BOTTOM", container, "BOTTOM", 0, 20)
         :SetSize(200, 25)
         :SetText("Add or Remove Buttons")
         :ApplyTooltip("Edit what buttons you can bind spells to")
@@ -838,7 +838,7 @@ function CreateTab_Customize()
                 AnchorDropdown:UpdateText()
                 UpdateFrameOptions()
                 if ShowCategorySection then
-                    ShowCategorySection() -- Refresh current category with new frame
+                    ShowCategorySection(currentCategory) -- Refresh current category with new frame
                 end
             end
         })
@@ -983,37 +983,29 @@ function CreateTab_Customize()
 
     UpdateFrameOptions()
 
-    -- Category-based customization section
-    local categoryContainer = PTGuiLib.Get("scroll_frame", container)
+    -- Header container for title and category dropdown
+    local categoryHeader = PTGuiLib.Get("container", container)
         :SetSimpleBackground()
         :SetPoint("TOPLEFT", frameStyleContainer, "BOTTOMLEFT", 0, -5)
+        :SetPoint("TOPRIGHT", container, "TOPRIGHT", -5, -5)
+        :SetHeight(80)  -- Height to fit title + subtitle + dropdown
+
+    -- Category-based customization section
+    categoryContainer = PTGuiLib.Get("scroll_frame", container)
+        :SetSimpleBackground()
+        :SetPoint("TOPLEFT", categoryHeader, "BOTTOMLEFT", 0, -5)
         :SetPoint("BOTTOMRIGHT", container, "BOTTOMRIGHT", -5, 5)
 
-    local categoryTitle = CreateLabel(categoryContainer, "Profile Customization")
-        :SetPoint("TOP", categoryContainer, "TOP", 0, -5)
+    local categoryTitle = CreateLabel(categoryHeader, "Profile Customization")
+        :SetPoint("TOP", categoryHeader, "TOP", 0, -5)
         :SetFontSize(14)
 
-    local categorySubtitle = CreateLabel(categoryContainer, "")
+    local categorySubtitle = CreateLabel(categoryHeader, "")
         :SetPoint("TOP", categoryTitle, "BOTTOM", 0, -3)
         :SetFontSize(10)
 
-    -- Category dropdown
-    local categoryDropdown = CreateLabeledDropdown(categoryContainer, "Category", "Choose what to customize")
-        :SetWidth(150)
-        :SetPoint("TOP", categorySubtitle, "BOTTOM", 0, -10)
-        :SetDynamicOptions(function(addOption, level, args)
-            addOption("text", "Dimensions", "dropdownText", "Dimensions", "func", args.func)
-            addOption("text", "Colors", "dropdownText", "Colors", "func", args.func)
-            addOption("text", "Textures", "dropdownText", "Textures", "func", args.func)
-            addOption("text", "Displays", "dropdownText", "Displays", "func", args.func)
-            addOption("text", "Layouts", "dropdownText", "Layouts", "func", args.func)
-            addOption("text", "Fonts", "dropdownText", "Fonts", "func", args.func)
-        end, {
-            func = function(self, gui)
-                ShowCategorySection(self.text)
-            end
-        })
-        :SetText("Dimensions")
+    -- Track current category
+    local currentCategory = "Dimensions"
 
     -- Create sections for each category (initially all hidden except Dimensions)
     local dimensionsSection = PTGuiLib.Get("container", categoryContainer)
@@ -1023,20 +1015,22 @@ function CreateTab_Customize()
     local layoutsSection = PTGuiLib.Get("container", categoryContainer)
     local fontsSection = PTGuiLib.Get("container", categoryContainer)
 
-    -- Position all sections in the same place (only anchor top and left, let them extend down for scrolling)
+    -- Position all sections in the same place (anchor to scroll frame for proper scrolling)
     for _, section in ipairs({dimensionsSection, colorsSection, texturesSection, displaysSection, layoutsSection, fontsSection}) do
-        section:SetPoint("TOPLEFT", categoryDropdown, "BOTTOMLEFT", -100, -30)
-        section:SetPoint("TOPRIGHT", categoryContainer, "TOPRIGHT", -5, -30)
-        section:SetHeight(1400)  -- Set a large height to ensure all content is visible with scrolling
+        section:SetPoint("TOP", categoryContainer, "TOP", 0, -10)
+        section:SetPoint("LEFT", categoryContainer, "LEFT", 5, 0)
+        section:SetPoint("RIGHT", categoryContainer, "RIGHT", -5, 0)
+        -- Remove fixed height to allow natural sizing like SpellBindInterface
     end
-
-    -- Track current category
-    local currentCategory = "Dimensions"
 
     -- Show/hide function for category sections
     function ShowCategorySection(categoryName)
         if categoryName then
             currentCategory = categoryName
+            -- Update dropdown text to match selected category
+            if categoryDropdown then
+                categoryDropdown:SetText(categoryName)
+            end
         end
 
         local selectedFrame = FrameDropdown:GetText()
@@ -1065,11 +1059,34 @@ function CreateTab_Customize()
         elseif currentCategory == "Layouts" then
             layoutsSection:Show()
             if UpdateLayoutsSection then UpdateLayoutsSection() end
-        elseif currentCategory == "Fonts" then
-            fontsSection:Show()
-            if UpdateFontsSection then UpdateFontsSection() end
-        end
-    end
+         elseif currentCategory == "Fonts" then
+             fontsSection:Show()
+             if UpdateFontsSection then UpdateFontsSection() end
+         end
+
+          -- Update scroll area to fit the new content
+          if categoryContainer then
+              categoryContainer:UpdateScrollChildRect()
+          end
+     end
+
+    -- Category dropdown
+    local categoryDropdown = CreateLabeledDropdown(categoryHeader, "Category", "Choose what to customize")
+        :SetWidth(150)
+        :SetPoint("TOP", categorySubtitle, "BOTTOM", 0, -10)
+        :SetDynamicOptions(function(addOption, level, args)
+            addOption("text", "Dimensions", "dropdownText", "Dimensions", "func", args.func)
+            addOption("text", "Colors", "dropdownText", "Colors", "func", args.func)
+            addOption("text", "Textures", "dropdownText", "Textures", "func", args.func)
+            addOption("text", "Displays", "dropdownText", "Displays", "func", args.func)
+            addOption("text", "Layouts", "dropdownText", "Layouts", "func", args.func)
+            addOption("text", "Fonts", "dropdownText", "Fonts", "func", args.func)
+        end, {
+            func = function(self, gui)
+                ShowCategorySection(self.text)
+            end
+        })
+        :SetText(currentCategory)
 
     -- Build Dimensions section content
     do
@@ -1801,6 +1818,7 @@ function CreateTab_Customize()
         end
 
         -- Name Text Size
+        print("DEBUG: Creating nameTextSlider")
         local nameTextSlider, updateNameTextSlider = CreateTextSizeSlider(
             textSizeSubtitle, "Name Text", "Font size for unit names",
             "NameText.FontSize",
@@ -2152,28 +2170,30 @@ function CreateTab_Customize()
         local powerOffsetYSlider, updatePowerOffsetY = CreateOffsetSlider(powerOffsetXSlider, "Power Text", "PowerText", "OffsetY", -15)
 
         -- Update function for Fonts section
-        function UpdateFontsSection()
-            updateNameTextSlider()
-            updateHealthTextSlider()
-            updateMissingHealthTextSlider()
-            updatePowerTextSlider()
-            updateIncomingHealTextSlider()
-            updateRangeTextSlider()
-            nameAnchorDropdown:UpdateText()
-            nameAlignH:UpdateText()
-            nameAlignV:UpdateText()
-            updateNameOffsetX()
-            updateNameOffsetY()
-            healthAnchorDropdown:UpdateText()
-            healthAlignH:UpdateText()
-            healthAlignV:UpdateText()
-            updateHealthOffsetX()
-            updateHealthOffsetY()
-            powerAnchorDropdown:UpdateText()
-            powerAlignH:UpdateText()
-            powerAlignV:UpdateText()
-            updatePowerOffsetX()
-            updatePowerOffsetY()
+        UpdateFontsSection = function()
+            if updateNameTextSlider then updateNameTextSlider() end
+            if updateHealthTextSlider then updateHealthTextSlider() end
+            if updateMissingHealthTextSlider then updateMissingHealthTextSlider() end
+            if updatePowerTextSlider then updatePowerTextSlider() end
+            if updateIncomingHealTextSlider then updateIncomingHealTextSlider() end
+            if updateRangeTextSlider then updateRangeTextSlider() end
+            if nameAnchorDropdown then nameAnchorDropdown:UpdateText() end
+            if nameAlignH then nameAlignH:UpdateText() end
+            if nameAlignV then nameAlignV:UpdateText() end
+            if updateNameOffsetX then updateNameOffsetX() end
+            if updateNameOffsetY then updateNameOffsetY() end
+            if healthAnchorDropdown then healthAnchorDropdown:UpdateText() end
+            if healthAlignH then healthAlignH:UpdateText() end
+            if healthAlignV then healthAlignV:UpdateText() end
+            if updateHealthOffsetX then updateHealthOffsetX() end
+            if updateHealthOffsetY then updateHealthOffsetY() end
+            if powerAnchorDropdown then powerAnchorDropdown:UpdateText() end
+            if powerAlignH then powerAlignH:UpdateText() end
+            if powerAlignV then powerAlignV:UpdateText() end
+            if updatePowerOffsetX then updatePowerOffsetX() end
+            if updatePowerOffsetY then updatePowerOffsetY() end
+            if fontDropdown then fontDropdown:UpdateText() end
+            if fontStyleDropdown then fontStyleDropdown:UpdateText() end
         end
     end
 
@@ -2220,10 +2240,17 @@ function SetStyleOverride(style, location, value)
             PTDirtyTracker.MarkDirty()
         end
     end
+
+    categoryContainer:UpdateScrollChildRect()
+
+    -- Show default category
+    ShowCategorySection("Dimensions")
 end
 
 
 
+
+    -- Profile management buttons
 function CreateTab_Profiles()
     local container = TabFrame:CreateTab("Profiles")
 
@@ -2231,7 +2258,9 @@ function CreateTab_Profiles()
     local profileLabel = CreateLabel(container, "Profile:")
         :SetPoint("TOPLEFT", container, "TOPLEFT", 20, -20)
 
-    local profileDropdown = CreateDropdown(container, 200)
+    -- Forward declare profileDropdown so it can be referenced in callbacks
+    local profileDropdown
+    profileDropdown = CreateDropdown(container, 200)
         :SetPoint("LEFT", profileLabel, "RIGHT", 10, 0)
         :ApplyTooltip("Select which profile to save to or load from.", "Selecting a profile does NOT automatically load it.")
         :SetDynamicOptions(function(addOption, level, args)
@@ -2251,9 +2280,13 @@ function CreateTab_Profiles()
                 end
 
                 PTProfileData.SetCurrentCharacterProfile(selectedProfile)
+                profileDropdown:UpdateText()
                 DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Selected profile: "..selectedProfile.." (click 'Load' to apply)")
             end
         })
+        :SetTextUpdater(function(self)
+            self:SetText(PTProfileData.GetCurrentCharacterProfile())
+        end)
 
     -- Profile management buttons
     local createButton = PTGuiLib.Get("button", container)
@@ -2380,9 +2413,11 @@ function CreateTab_Profiles()
                     if PTProfileData.DeleteProfile(currentProfile) then
                         -- Switch to Default profile after deleting current
                         PTProfileData.SetCurrentCharacterProfile("Default")
+                        profileDropdown:UpdateText()
                         local defaultData = PTProfileData.LoadProfile("Default")
                         if defaultData then
                             PTProfileData.ApplyProfileData(defaultData)
+                            PuppeteerSettings.ApplyFramePositions()
                             RefreshAllFrameGroups()
                         end
                         PopOverlayFrame()
@@ -2428,6 +2463,7 @@ function CreateTab_Profiles()
                 local newName = nameEditBox:GetText()
                 if newName and newName ~= "" then
                     if PTProfileData.RenameProfile(currentProfile, newName) then
+                        profileDropdown:UpdateText()
                         PopOverlayFrame()
                         dialog:Dispose()
                         DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Profile renamed to '"..newName.."'")
@@ -2455,8 +2491,20 @@ function CreateTab_Profiles()
     separator:SetPoint("TOPLEFT", createButton:GetHandle(), "BOTTOMLEFT", 0, -30)
     separator:SetPoint("TOPRIGHT", container:GetHandle(), "TOPRIGHT", -20, -120)
 
-    local loadButton = PTGuiLib.Get("button", container)
+    -- Checkbox for including positions in profile
+    local includePositionsLabel = CreateLabel(container, "Include frame positions in profile:")
         :SetPoint("TOPLEFT", separator, "BOTTOMLEFT", 0, -15)
+
+    local includePositionsCheckbox = CreateCheckbox(container, 20, 20)
+        :SetPoint("LEFT", includePositionsLabel, "RIGHT", 5, 0)
+        :ApplyTooltip("When enabled, saving a profile includes frame positions.", "Loading a profile will move frames to the saved positions.", "When disabled, each character keeps its own positions.")
+        :SetChecked(PTOptions.IncludePositionsInProfile and 1 or 0)
+        :OnClick(function(self)
+            PTOptions.IncludePositionsInProfile = self:GetChecked() == 1
+        end)
+
+    local loadButton = PTGuiLib.Get("button", container)
+        :SetPoint("TOPLEFT", includePositionsLabel, "BOTTOMLEFT", 0, -10)
         :SetSize(100, 30)
         :SetText("Load")
         :ApplyTooltip("Load settings from the selected profile.", "This will replace your current settings.")
@@ -2465,6 +2513,7 @@ function CreateTab_Profiles()
             local profileData = PTProfileData.LoadProfile(profileName)
             if profileData then
                 PTProfileData.ApplyProfileData(profileData)
+                PuppeteerSettings.ApplyFramePositions()
                 RefreshAllFrameGroups()
                 MarkProfileSwitched()
                 DEFAULT_CHAT_FRAME:AddMessage("[Puppeteer] Loaded profile: "..profileName)
