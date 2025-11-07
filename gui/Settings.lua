@@ -1063,11 +1063,12 @@ function CreateTab_Customize()
         elseif currentCategory == "Layouts" then
             layoutsSection:Show()
             if UpdateLayoutsSection then UpdateLayoutsSection() end
-                                                elseif currentCategory == "Fonts" then
-                                                    fontsSection:Show()
-                                                    categoryContainer:UpdateScrollChildRect() -- Force scroll frame update
-                                                    if UpdateFontsSection then UpdateFontsSection() end
-                                                end          -- Update scroll area to fit the new content
+                                                             elseif currentCategory == "Fonts" then
+                                                                 fontsSection:Hide() -- Force a redraw
+                                                                 fontsSection:Show()
+                                                                 categoryContainer:UpdateScrollChildRect() -- Force scroll frame update
+                                                                 if UpdateFontsSection then UpdateFontsSection() end
+                                                             end          -- Update scroll area to fit the new content
           if categoryContainer then
               categoryContainer:UpdateScrollChildRect()
           end
